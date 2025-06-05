@@ -10,6 +10,7 @@ import (
 	"siphon/app/ieccaller/internal/svc"
 	iec104client "siphon/iec104/iec104client"
 	"siphon/iec104/types"
+	"siphon/iec104/util"
 )
 
 type ClientCall struct {
@@ -138,7 +139,9 @@ func (c *ClientCall) onDoublePoint(packet *asdu.ASDU) {
 	coa := packet.CommonAddr
 	// [M_DP_NA_1], [M_DP_TA_1] or [M_DP_TB_1] 获得双点信息体集合
 	for _, p := range packet.GetDoublePoint() {
-		c.logger.Infof("double point, ioa: %d, value: %v", p.Ioa, p.Value)
+		c.logger.Infof("double point, ioa: %d, value: %v, bl: %v, sb: %v, nt: %v, iv:%v", p.Ioa, p.Value,
+			util.QdsIsBlocked(p.Qds), util.QdsIsSubstituted(p.Qds), util.QdsIsNotTopical(p.Qds), util.QdsIsInvalid(p.Qds))
+		c.logger.Infof("qds: %s", util.QdsString(p.Qds))
 		var obj types.DoublePointInfo
 		//obj.Time = carbon.Now().ToDateTimeString()
 		copier.CopyWithOption(&obj, &p, types.Option)
