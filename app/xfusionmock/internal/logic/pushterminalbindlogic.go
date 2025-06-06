@@ -3,8 +3,8 @@ package logic
 import (
 	"context"
 	"encoding/json"
+	"github.com/dromara/carbon/v2"
 	"github.com/duke-git/lancet/v2/random"
-	"github.com/golang-module/carbon/v2"
 	"siphon/model"
 
 	"siphon/app/xfusionmock/internal/svc"

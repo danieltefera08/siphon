@@ -15,7 +15,7 @@ import (
 	"siphon/zeroalarm/zeroalarm"
 	"siphon/zerorpc/tasktype"
 
-	"github.com/golang-module/carbon/v2"
+	"github.com/dromara/carbon/v2"
 	"siphon/zerorpc/internal/svc"
 	"siphon/zerorpc/zerorpc"
 
