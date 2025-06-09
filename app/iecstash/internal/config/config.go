@@ -17,4 +17,5 @@ type Config struct {
 		NamespaceId string
 		ServiceName string
 	} `json:",optional"`
+	IecStreamRpcConf zrpc.RpcClientConf
 }

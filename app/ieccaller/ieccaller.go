@@ -12,6 +12,7 @@ import (
 	"siphon/app/ieccaller/internal/iec"
 	"siphon/app/ieccaller/internal/server"
 	"siphon/app/ieccaller/internal/svc"
+	interceptor "siphon/common/Interceptor/rpcserver"
 	"siphon/common/nacos"
 	"siphon/iec104/iec104client"
 
@@ -66,6 +67,7 @@ func main() {
 		opts := nacos.NewNacosConfig(c.NacosConfig.ServiceName, c.ListenOn, sc, cc, nacos.WithMetadata(m))
 		_ = nacos.RegisterService(opts)
 	}
+	s.AddUnaryInterceptors(interceptor.LoggerInterceptor)
 	serviceGroup := service.NewServiceGroup()
 	defer serviceGroup.Stop()
 	logx.AddGlobalFields(logx.Field("app", c.Name))

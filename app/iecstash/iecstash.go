@@ -8,6 +8,7 @@ import (
 	"github.com/zeromicro/go-queue/kq"
 	"github.com/zeromicro/go-zero/core/logx"
 	"siphon/app/iecstash/kafka"
+	interceptor "siphon/common/Interceptor/rpcserver"
 	"siphon/common/nacos"
 
 	"siphon/app/iecstash/iecstash"
@@ -63,6 +64,7 @@ func main() {
 		opts := nacos.NewNacosConfig(c.NacosConfig.ServiceName, c.ListenOn, sc, cc, nacos.WithMetadata(m))
 		_ = nacos.RegisterService(opts)
 	}
+	s.AddUnaryInterceptors(interceptor.LoggerInterceptor)
 	serviceGroup := service.NewServiceGroup()
 	defer serviceGroup.Stop()
 	logx.AddGlobalFields(logx.Field("app", c.Name))
