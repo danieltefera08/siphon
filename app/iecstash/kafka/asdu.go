@@ -3,7 +3,7 @@ package kafka
 import (
 	"github.com/zeromicro/go-zero/core/logx"
 	"golang.org/x/net/context"
-	"siphon/app/iecmock/internal/svc"
+	"siphon/app/iecstash/internal/svc"
 )
 
 type Asdu struct {

@@ -1,6 +1,6 @@
 package svc
 
-import "siphon/app/iecmock/internal/config"
+import "siphon/app/iecstash/internal/config"
 
 type ServiceContext struct {
 	Config config.Config
