@@ -11,7 +11,7 @@ import (
 	"siphon/gtw/internal/svc"
 
 	"github.com/zeromicro/go-zero/core/conf"
-	_ "siphon/common/nacos"
+	_ "siphon/common/nacosx"
 )
 
 var configFile = flag.String("f", "etc/gtw.yaml", "the config file")
