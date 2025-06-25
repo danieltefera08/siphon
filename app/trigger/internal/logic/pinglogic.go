@@ -2,8 +2,6 @@ package logic
 
 import (
 	"context"
-	"time"
-
 	"siphon/app/trigger/internal/svc"
 	"siphon/app/trigger/trigger"
 
@@ -25,6 +23,5 @@ func NewPingLogic(ctx context.Context, svcCtx *svc.ServiceContext) *PingLogic {
 }
 
 func (l *PingLogic) Ping(in *trigger.Req) (*trigger.Res, error) {
-	time.Sleep(2 * time.Second)
 	return &trigger.Res{Pong: "hello"}, nil
 }
