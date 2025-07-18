@@ -6,7 +6,7 @@ import (
 	"golang.org/x/net/context"
 	"siphon/app/ieccaller/ieccaller"
 	"siphon/app/ieccaller/internal/svc"
-	"siphon/iec104/types"
+	"siphon/common/iec104/types"
 )
 
 type Broadcast struct {

@@ -9,9 +9,9 @@ import (
 	"github.com/zeromicro/go-zero/core/logx"
 	"siphon/app/ieccaller/internal/svc"
 	"siphon/common/copierx"
-	iec104client "siphon/iec104/iec104client"
-	"siphon/iec104/types"
-	"siphon/iec104/util"
+	"siphon/common/iec104/iec104client"
+	"siphon/common/iec104/types"
+	"siphon/common/iec104/util"
 )
 
 type ClientCall struct {

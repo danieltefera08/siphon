@@ -7,7 +7,12 @@ import (
 	"github.com/duke-git/lancet/v2/strutil"
 	"github.com/nacos-group/nacos-sdk-go/v2/common/constant"
 	"github.com/zeromicro/go-queue/kq"
+	"github.com/zeromicro/go-zero/core/conf"
 	"github.com/zeromicro/go-zero/core/logx"
+	"github.com/zeromicro/go-zero/core/service"
+	"github.com/zeromicro/go-zero/zrpc"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/reflection"
 	"siphon/app/ieccaller/cron"
 	"siphon/app/ieccaller/ieccaller"
 	"siphon/app/ieccaller/internal/config"
@@ -16,15 +21,9 @@ import (
 	"siphon/app/ieccaller/internal/svc"
 	"siphon/app/ieccaller/kafka"
 	interceptor "siphon/common/Interceptor/rpcserver"
-	"siphon/common/nacosx"
-	"siphon/iec104/iec104client"
-
-	"github.com/zeromicro/go-zero/core/conf"
-	"github.com/zeromicro/go-zero/core/service"
-	"github.com/zeromicro/go-zero/zrpc"
-	"google.golang.org/grpc"
-	"google.golang.org/grpc/reflection"
 	_ "siphon/common/carbonx"
+	"siphon/common/iec104/iec104client"
+	"siphon/common/nacosx"
 )
 
 var configFile = flag.String("f", "etc/ieccaller.yaml", "the config file")

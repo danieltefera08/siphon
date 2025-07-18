@@ -7,8 +7,8 @@ import (
 	"github.com/dromara/carbon/v2"
 	"github.com/zeromicro/go-queue/kq"
 	"siphon/app/ieccaller/internal/config"
-	"siphon/iec104/iec104client"
-	"siphon/iec104/types"
+	"siphon/common/iec104/iec104client"
+	"siphon/common/iec104/types"
 )
 
 type ServiceContext struct {
