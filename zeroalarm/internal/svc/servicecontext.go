@@ -5,7 +5,7 @@ import (
 	"github.com/zeromicro/go-zero/core/stores/redis"
 	"github.com/zeromicro/go-zero/rest/httpc"
 	"time"
-	"siphon/alarmx"
+	"siphon/common/alarmx"
 	"siphon/zeroalarm/internal/config"
 )
 
