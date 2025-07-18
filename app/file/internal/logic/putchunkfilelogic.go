@@ -6,11 +6,10 @@ import (
 	"github.com/zeromicro/go-zero/core/threading"
 	"io"
 	"net/http"
-	"siphon/model"
-	"siphon/ossx"
-
 	"siphon/app/file/file"
 	"siphon/app/file/internal/svc"
+	"siphon/common/ossx"
+	"siphon/model"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )

@@ -2,12 +2,11 @@ package logic
 
 import (
 	"context"
+	"github.com/zeromicro/go-zero/core/logx"
 	"siphon/app/file/file"
 	"siphon/app/file/internal/svc"
+	"siphon/common/ossx"
 	"siphon/model"
-	"siphon/ossx"
-
-	"github.com/zeromicro/go-zero/core/logx"
 )
 
 type RemoveFilesLogic struct {

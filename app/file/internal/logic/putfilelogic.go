@@ -3,15 +3,14 @@ package logic
 import (
 	"context"
 	"github.com/jinzhu/copier"
+	"github.com/zeromicro/go-zero/core/logx"
 	"io"
 	"net/http"
 	"os"
 	"siphon/app/file/file"
 	"siphon/app/file/internal/svc"
+	"siphon/common/ossx"
 	"siphon/model"
-	"siphon/ossx"
-
-	"github.com/zeromicro/go-zero/core/logx"
 )
 
 type PutFileLogic struct {

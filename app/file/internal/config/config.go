@@ -3,7 +3,7 @@ package config
 import (
 	"github.com/zeromicro/go-zero/core/stores/cache"
 	"github.com/zeromicro/go-zero/zrpc"
-	"siphon/ossx/osssconfig"
+	"siphon/common/ossx/osssconfig"
 )
 
 type Config struct {

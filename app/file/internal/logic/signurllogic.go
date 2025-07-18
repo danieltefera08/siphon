@@ -4,11 +4,10 @@ import (
 	"context"
 	"github.com/jinzhu/copier"
 	"time"
-	"siphon/model"
-	"siphon/ossx"
-
 	"siphon/app/file/file"
 	"siphon/app/file/internal/svc"
+	"siphon/common/ossx"
+	"siphon/model"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
