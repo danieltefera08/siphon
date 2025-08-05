@@ -12,12 +12,10 @@ import (
 	"go.opentelemetry.io/otel/propagation"
 	"regexp"
 	"time"
-	"siphon/common/asynqx"
-	"siphon/common/ctxdata"
-	"siphon/zerorpc/tasktype"
-
 	"siphon/app/trigger/internal/svc"
 	"siphon/app/trigger/trigger"
+	"siphon/common/asynqx"
+	"siphon/common/ctxdata"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -40,7 +38,7 @@ func NewSendProtoTriggerLogic(ctx context.Context, svcCtx *svc.ServiceContext) *
 
 func (l *SendProtoTriggerLogic) SendProtoTrigger(in *trigger.SendProtoTriggerReq) (*trigger.SendProtoTriggerRes, error) {
 	traceID := trace.TraceIDFromContext(l.ctx)
-	spanCtx, span := asynqx.StartAsynqProducerSpan(l.ctx, tasktype.DeferTriggerProtoTask)
+	spanCtx, span := asynqx.StartAsynqProducerSpan(l.ctx, asynqx.DeferTriggerProtoTask)
 	defer span.End()
 	carrier := &propagation.HeaderCarrier{}
 	otel.GetTextMapPropagator().Inject(spanCtx, carrier)
@@ -89,7 +87,7 @@ func (l *SendProtoTriggerLogic) SendProtoTrigger(in *trigger.SendProtoTriggerReq
 		d = time.Duration(in.ProcessIn) * time.Second
 	}
 	opts = append(opts, asynq.ProcessIn(d))
-	taskInfo, err := l.svcCtx.AsynqClient.Enqueue(asynq.NewTask(tasktype.DeferTriggerProtoTask, []byte(payload)), opts...)
+	taskInfo, err := l.svcCtx.AsynqClient.Enqueue(asynq.NewTask(asynqx.DeferTriggerProtoTask, []byte(payload)), opts...)
 	if err != nil {
 		return nil, err
 	}

@@ -8,7 +8,6 @@ import (
 	"time"
 	"siphon/common/asynqx"
 	"siphon/zerorpc/internal/config"
-	"siphon/zerorpc/tasktype"
 )
 
 type SchedulerServer struct {
@@ -54,10 +53,10 @@ func newScheduler(c config.Config) *asynq.Scheduler {
 }
 
 func (q *SchedulerServer) Register() {
-	task := asynq.NewTask(tasktype.SchedulerDeferTask, nil, asynq.Retention(24*time.Hour))
+	task := asynq.NewTask(asynqx.SchedulerDeferTask, nil, asynq.Retention(24*time.Hour))
 	entryID, err := q.Scheduler.Register("*/1 * * * *", task)
 	if err != nil {
 		logx.Errorf("asynq scheduleDelayTask err:%+v,task:%+v", err, task)
 	}
-	logx.Infow(fmt.Sprintf("asynq scheduleDelayTask registered %s", entryID), logx.Field("type", tasktype.SchedulerDeferTask))
+	logx.Infow(fmt.Sprintf("asynq scheduleDelayTask registered %s", entryID), logx.Field("type", asynqx.SchedulerDeferTask))
 }
