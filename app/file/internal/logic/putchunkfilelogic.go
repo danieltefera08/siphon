@@ -7,7 +7,7 @@ import (
 	"strings"
 	"siphon/app/file/file"
 	"siphon/app/file/internal/svc"
-	"siphon/common/exifx"
+	"siphon/common/imagex"
 	"siphon/common/ossx"
 	"siphon/model"
 
@@ -170,7 +170,7 @@ func (l *PutChunkFileLogic) PutChunkFile(stream file.FileRpc_PutChunkFileServer)
 		}
 
 		if strings.HasPrefix(contentType, "image/") {
-			exifMeta, err := exifx.ExtractImageMetaFromBytes(exifBuf)
+			exifMeta, err := imagex.ExtractImageMetaFromBytes(exifBuf)
 			if err == nil {
 				var meta file.ImageMeta
 				_ = copier.Copy(&meta, &exifMeta)
