@@ -62,6 +62,7 @@ func (l *PutChunkFileLogic) PutChunkFile(req *types.PutFileRequest) (resp *types
 		l.Logger.Errorf("Failed to create stream: %v", err)
 		return nil, err
 	}
+	defer stream.CloseSend()
 
 	// 逐块读取文件并上传
 	buf := make([]byte, partSize)
@@ -85,6 +86,9 @@ func (l *PutChunkFileLogic) PutChunkFile(req *types.PutFileRequest) (resp *types
 				Size:        fileHeader.Size,
 			}
 			if err := stream.Send(chunk); err != nil {
+				if errors.Is(err, io.EOF) {
+					break
+				}
 				l.Logger.Errorf("Failed to write: %v", err)
 				return nil, err
 			}
