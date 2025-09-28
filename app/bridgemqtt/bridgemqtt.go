@@ -3,8 +3,6 @@ package main
 import (
 	"flag"
 	"fmt"
-	"siphon/app/bridgemqtt/internal/handler"
-
 	"siphon/app/bridgemqtt/bridgemqtt"
 	"siphon/app/bridgemqtt/internal/config"
 	"siphon/app/bridgemqtt/internal/server"
@@ -33,7 +31,6 @@ func main() {
 			reflection.Register(grpcServer)
 		}
 	})
-	ctx.MqttClient.AddHandler("testGo", handler.NewTestHandler(ctx))
 	defer s.Stop()
 
 	fmt.Printf("Starting rpc server at %s...\n", c.ListenOn)
