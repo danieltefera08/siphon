@@ -10,6 +10,7 @@ import (
 	interceptor "siphon/common/Interceptor/rpcserver"
 
 	_ "siphon/common/carbonx"
+	_ "siphon/common/nacosx"
 
 	"github.com/zeromicro/go-zero/core/conf"
 	"github.com/zeromicro/go-zero/core/logx"
