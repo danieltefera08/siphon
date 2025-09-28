@@ -7,8 +7,12 @@ import (
 	"siphon/app/bridgemqtt/internal/config"
 	"siphon/app/bridgemqtt/internal/server"
 	"siphon/app/bridgemqtt/internal/svc"
+	interceptor "siphon/common/Interceptor/rpcserver"
+
+	_ "siphon/common/carbonx"
 
 	"github.com/zeromicro/go-zero/core/conf"
+	"github.com/zeromicro/go-zero/core/logx"
 	"github.com/zeromicro/go-zero/core/service"
 	"github.com/zeromicro/go-zero/zrpc"
 	"google.golang.org/grpc"
@@ -31,6 +35,8 @@ func main() {
 			reflection.Register(grpcServer)
 		}
 	})
+	s.AddUnaryInterceptors(interceptor.LoggerInterceptor)
+	logx.AddGlobalFields(logx.Field("app", c.Name))
 	defer s.Stop()
 
 	fmt.Printf("Starting rpc server at %s...\n", c.ListenOn)
