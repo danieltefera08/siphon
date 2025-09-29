@@ -1,6 +1,6 @@
 package svc
 
-import "siphon/facade/mqttstream/internal/config"
+import "siphon/facade/streamevent/internal/config"
 
 type ServiceContext struct {
 	Config config.Config
