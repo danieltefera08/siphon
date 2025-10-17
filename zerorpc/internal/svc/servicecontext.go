@@ -2,6 +2,11 @@ package svc
 
 import (
 	"fmt"
+	"siphon/app/alarm/alarm"
+	"siphon/common/powerwechatx"
+	"siphon/model"
+	"siphon/zerorpc/internal/config"
+
 	"github.com/ArtisanCloud/PowerWeChat/v3/src/miniProgram"
 	"github.com/ArtisanCloud/PowerWeChat/v3/src/payment"
 	"github.com/hibiken/asynq"
@@ -9,22 +14,18 @@ import (
 	"github.com/zeromicro/go-zero/core/stores/sqlx"
 	"github.com/zeromicro/go-zero/rest/httpc"
 	"github.com/zeromicro/go-zero/zrpc"
-	"siphon/common/powerwechatx"
-	"siphon/model"
-	"siphon/zeroalarm/zeroalarm"
-	"siphon/zerorpc/internal/config"
 )
 
 type ServiceContext struct {
-	Config       config.Config
-	AsynqClient  *asynq.Client
-	AsynqServer  *asynq.Server
-	Scheduler    *asynq.Scheduler
-	Httpc        httpc.Service
-	RedisClient  *redis.Redis
-	ZeroAlarmCli zeroalarm.ZeroalarmClient
-	MiniCli      *miniProgram.MiniProgram
-	WxPayCli     *payment.Payment
+	Config      config.Config
+	AsynqClient *asynq.Client
+	AsynqServer *asynq.Server
+	Scheduler   *asynq.Scheduler
+	Httpc       httpc.Service
+	RedisClient *redis.Redis
+	AlarmCli    alarm.AlarmClient
+	MiniCli     *miniProgram.MiniProgram
+	WxPayCli    *payment.Payment
 
 	UserModel     model.UserModel
 	RegionModel   model.RegionModel
@@ -90,7 +91,7 @@ func NewServiceContext(c config.Config) *ServiceContext {
 		Scheduler:     newScheduler(c),
 		Httpc:         httpc.NewService("httpc"),
 		RedisClient:   redisClient,
-		ZeroAlarmCli:  zeroalarm.NewZeroalarmClient(zrpc.MustNewClient(c.ZeroAlarmConf).Conn()),
+		AlarmCli:      alarm.NewAlarmClient(zrpc.MustNewClient(c.ZeroAlarmConf).Conn()),
 		MiniCli:       miniCli,
 		WxPayCli:      paymentService,
 		UserModel:     model.NewUserModel(sqlx.NewMysql(c.DB.DataSource)),
