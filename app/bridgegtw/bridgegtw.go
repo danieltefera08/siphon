@@ -4,8 +4,6 @@ import (
 	"flag"
 	"fmt"
 	"net/http"
-	"siphon/common/nacosx"
-
 	"siphon/app/bridgegtw/internal/config"
 	"siphon/app/bridgegtw/internal/handler"
 	"siphon/app/bridgegtw/internal/svc"
@@ -30,11 +28,6 @@ func main() {
 				//w.Header().Set(httpx.ContentType, httpx.JsonContentType)
 			})
 		}))
-	})
-	nacosx.SetUpLogger(nacosx.LoggerConfig{
-		AppendToStdout: true,
-		Level:          "error",
-		LogDir:         "/tmp/nacos/log",
 	})
 
 	ctx := svc.NewServiceContext(c)

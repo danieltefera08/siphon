@@ -3,8 +3,6 @@ package main
 import (
 	"flag"
 	"fmt"
-	"siphon/common/nacosx"
-
 	"siphon/app/bridgedump/bridgedump"
 	"siphon/app/bridgedump/internal/config"
 	"siphon/app/bridgedump/internal/server"
@@ -34,11 +32,6 @@ func main() {
 		if c.Mode == service.DevMode || c.Mode == service.TestMode {
 			reflection.Register(grpcServer)
 		}
-	})
-	nacosx.SetUpLogger(nacosx.LoggerConfig{
-		AppendToStdout: true,
-		Level:          "error",
-		LogDir:         "/tmp/nacos/log",
 	})
 	defer s.Stop()
 

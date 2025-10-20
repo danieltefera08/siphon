@@ -10,7 +10,6 @@ import (
 	"siphon/app/iecagent/internal/svc"
 	interceptor "siphon/common/Interceptor/rpcserver"
 	iec104server2 "siphon/common/iec104/iec104server"
-	"siphon/common/nacosx"
 
 	"github.com/zeromicro/go-zero/core/logx"
 
@@ -40,11 +39,6 @@ func main() {
 		if c.Mode == service.DevMode || c.Mode == service.TestMode {
 			reflection.Register(grpcServer)
 		}
-	})
-	nacosx.SetUpLogger(nacosx.LoggerConfig{
-		AppendToStdout: true,
-		Level:          "error",
-		LogDir:         "/tmp/nacos/log",
 	})
 	s.AddUnaryInterceptors(interceptor.LoggerInterceptor)
 	serviceGroup := service.NewServiceGroup()

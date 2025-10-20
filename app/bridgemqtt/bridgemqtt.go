@@ -8,8 +8,6 @@ import (
 	"siphon/app/bridgemqtt/internal/server"
 	"siphon/app/bridgemqtt/internal/svc"
 	interceptor "siphon/common/Interceptor/rpcserver"
-	"siphon/common/nacosx"
-
 	_ "siphon/common/carbonx"
 	_ "siphon/common/nacosx"
 
@@ -37,11 +35,7 @@ func main() {
 			reflection.Register(grpcServer)
 		}
 	})
-	nacosx.SetUpLogger(nacosx.LoggerConfig{
-		AppendToStdout: true,
-		Level:          "error",
-		LogDir:         "/tmp/nacos/log",
-	})
+
 	s.AddUnaryInterceptors(interceptor.LoggerInterceptor)
 	logx.AddGlobalFields(logx.Field("app", c.Name))
 	defer s.Stop()

@@ -9,7 +9,6 @@ import (
 	"siphon/app/xfusionmock/internal/svc"
 	"siphon/app/xfusionmock/kafka"
 	"siphon/app/xfusionmock/xfusionmock"
-	"siphon/common/nacosx"
 
 	"github.com/zeromicro/go-queue/kq"
 	"github.com/zeromicro/go-zero/core/logx"
@@ -38,11 +37,6 @@ func main() {
 		if c.Mode == service.DevMode || c.Mode == service.TestMode {
 			reflection.Register(grpcServer)
 		}
-	})
-	nacosx.SetUpLogger(nacosx.LoggerConfig{
-		AppendToStdout: true,
-		Level:          "error",
-		LogDir:         "/tmp/nacos/log",
 	})
 	serviceGroup := service.NewServiceGroup()
 	defer serviceGroup.Stop()
