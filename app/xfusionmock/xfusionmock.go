@@ -3,21 +3,24 @@ package main
 import (
 	"flag"
 	"fmt"
-	"github.com/zeromicro/go-queue/kq"
-	"github.com/zeromicro/go-zero/core/logx"
 	"siphon/app/xfusionmock/cron"
 	"siphon/app/xfusionmock/internal/config"
 	"siphon/app/xfusionmock/internal/server"
 	"siphon/app/xfusionmock/internal/svc"
 	"siphon/app/xfusionmock/kafka"
 	"siphon/app/xfusionmock/xfusionmock"
+	"siphon/common/nacosx"
+
+	"github.com/zeromicro/go-queue/kq"
+	"github.com/zeromicro/go-zero/core/logx"
+
+	_ "siphon/common/carbonx"
 
 	"github.com/zeromicro/go-zero/core/conf"
 	"github.com/zeromicro/go-zero/core/service"
 	"github.com/zeromicro/go-zero/zrpc"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
-	_ "siphon/common/carbonx"
 )
 
 var configFile = flag.String("f", "etc/xfusionmock.yaml", "the config file")
@@ -35,6 +38,11 @@ func main() {
 		if c.Mode == service.DevMode || c.Mode == service.TestMode {
 			reflection.Register(grpcServer)
 		}
+	})
+	nacosx.SetUpLogger(nacosx.LoggerConfig{
+		AppendToStdout: true,
+		Level:          "error",
+		LogDir:         "/tmp/nacos/log",
 	})
 	serviceGroup := service.NewServiceGroup()
 	defer serviceGroup.Stop()

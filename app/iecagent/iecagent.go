@@ -3,7 +3,6 @@ package main
 import (
 	"flag"
 	"fmt"
-	"github.com/zeromicro/go-zero/core/logx"
 	"siphon/app/iecagent/iecagent"
 	"siphon/app/iecagent/internal/config"
 	"siphon/app/iecagent/internal/iec"
@@ -11,6 +10,9 @@ import (
 	"siphon/app/iecagent/internal/svc"
 	interceptor "siphon/common/Interceptor/rpcserver"
 	iec104server2 "siphon/common/iec104/iec104server"
+	"siphon/common/nacosx"
+
+	"github.com/zeromicro/go-zero/core/logx"
 
 	"github.com/zeromicro/go-zero/core/conf"
 	"github.com/zeromicro/go-zero/core/service"
@@ -38,6 +40,11 @@ func main() {
 		if c.Mode == service.DevMode || c.Mode == service.TestMode {
 			reflection.Register(grpcServer)
 		}
+	})
+	nacosx.SetUpLogger(nacosx.LoggerConfig{
+		AppendToStdout: true,
+		Level:          "error",
+		LogDir:         "/tmp/nacos/log",
 	})
 	s.AddUnaryInterceptors(interceptor.LoggerInterceptor)
 	serviceGroup := service.NewServiceGroup()
