@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"math"
-
 	"siphon/app/geo/geo"
 	"siphon/app/geo/internal/svc"
 
