@@ -1,6 +1,6 @@
 package svc
 
-import "siphon/app/geo/internal/config"
+import "siphon/app/gis/internal/config"
 
 type ServiceContext struct {
 	Config config.Config

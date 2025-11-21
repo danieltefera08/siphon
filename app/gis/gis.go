@@ -4,10 +4,10 @@ import (
 	"flag"
 	"fmt"
 
-	"siphon/app/geo/geo"
-	"siphon/app/geo/internal/config"
-	"siphon/app/geo/internal/server"
-	"siphon/app/geo/internal/svc"
+	"siphon/app/gis/gis"
+	"siphon/app/gis/internal/config"
+	"siphon/app/gis/internal/server"
+	"siphon/app/gis/internal/svc"
 
 	"github.com/zeromicro/go-zero/core/conf"
 	"github.com/zeromicro/go-zero/core/service"
@@ -16,7 +16,7 @@ import (
 	"google.golang.org/grpc/reflection"
 )
 
-var configFile = flag.String("f", "etc/geo.yaml", "the config file")
+var configFile = flag.String("f", "etc/gis.yaml", "the config file")
 
 func main() {
 	flag.Parse()
@@ -26,7 +26,7 @@ func main() {
 	ctx := svc.NewServiceContext(c)
 
 	s := zrpc.MustNewServer(c.RpcServerConf, func(grpcServer *grpc.Server) {
-		geo.RegisterGeoServer(grpcServer, server.NewGeoServer(ctx))
+		gis.RegisterGisServer(grpcServer, server.NewGisServer(ctx))
 
 		if c.Mode == service.DevMode || c.Mode == service.TestMode {
 			reflection.Register(grpcServer)
