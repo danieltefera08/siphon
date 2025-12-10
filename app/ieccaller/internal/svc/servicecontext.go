@@ -7,7 +7,6 @@ import (
 	"siphon/app/ieccaller/internal/config"
 	"siphon/common/iec104/iec104client"
 	"siphon/common/iec104/types"
-	"siphon/common/tool"
 
 	"github.com/dromara/carbon/v2"
 	"github.com/zeromicro/go-queue/kq"
@@ -32,8 +31,6 @@ func NewServiceContext(c config.Config) *ServiceContext {
 
 func (svc ServiceContext) PushASDU(data *types.MsgBody) error {
 	key, _ := data.GetKey()
-	msgId, _ := tool.SimpleUUID()
-	data.MsgId = msgId
 	data.Time = carbon.Now().ToDateTimeMicroString()
 	byteData, err := json.Marshal(data)
 	if err != nil {
