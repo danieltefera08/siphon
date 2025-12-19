@@ -5,6 +5,7 @@ import (
 	"fmt"
 	interceptor "siphon/common/Interceptor/rpcserver"
 	"siphon/common/nacosx"
+	"siphon/common/tool"
 
 	"siphon/facade/streamevent/internal/config"
 	"siphon/facade/streamevent/internal/server"
@@ -28,6 +29,10 @@ func main() {
 
 	var c config.Config
 	conf.MustLoad(*configFile, &c)
+
+	// Print Go version
+	tool.PrintGoVersion()
+
 	ctx := svc.NewServiceContext(c)
 
 	s := zrpc.MustNewServer(c.RpcServerConf, func(grpcServer *grpc.Server) {

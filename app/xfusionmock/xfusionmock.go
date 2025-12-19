@@ -9,6 +9,7 @@ import (
 	"siphon/app/xfusionmock/internal/svc"
 	"siphon/app/xfusionmock/kafka"
 	"siphon/app/xfusionmock/xfusionmock"
+	"siphon/common/tool"
 
 	"github.com/zeromicro/go-queue/kq"
 	"github.com/zeromicro/go-zero/core/logx"
@@ -29,6 +30,10 @@ func main() {
 
 	var c config.Config
 	conf.MustLoad(*configFile, &c)
+
+	// Print Go version
+	tool.PrintGoVersion()
+
 	ctx := svc.NewServiceContext(c)
 
 	s := zrpc.MustNewServer(c.RpcServerConf, func(grpcServer *grpc.Server) {
