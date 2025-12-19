@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/zeromicro/go-zero/core/logx"
 	interceptor "siphon/common/Interceptor/rpcserver"
+	"siphon/common/tool"
 	"siphon/zerorpc/internal/task"
 
 	"siphon/zerorpc/internal/config"
@@ -27,6 +28,10 @@ func main() {
 
 	var c config.Config
 	conf.MustLoad(*configFile, &c)
+
+	// Print Go version
+	tool.PrintGoVersion()
+
 	ctx := svc.NewServiceContext(c)
 
 	s := zrpc.MustNewServer(c.RpcServerConf, func(grpcServer *grpc.Server) {

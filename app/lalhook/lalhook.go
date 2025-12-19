@@ -8,6 +8,7 @@ import (
 	"siphon/app/lalhook/internal/config"
 	"siphon/app/lalhook/internal/handler"
 	"siphon/app/lalhook/internal/svc"
+	"siphon/common/tool"
 
 	"github.com/zeromicro/go-zero/core/conf"
 	"github.com/zeromicro/go-zero/rest"
@@ -20,6 +21,9 @@ func main() {
 
 	var c config.Config
 	conf.MustLoad(*configFile, &c)
+
+	// Print Go version
+	tool.PrintGoVersion()
 
 	server := rest.MustNewServer(c.RestConf, rest.WithCustomCors(func(header http.Header) {
 		origin := header.Get("Origin") // 动态获取请求域名

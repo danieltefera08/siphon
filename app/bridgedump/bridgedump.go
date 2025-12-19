@@ -7,6 +7,7 @@ import (
 	"siphon/app/bridgedump/internal/config"
 	"siphon/app/bridgedump/internal/server"
 	"siphon/app/bridgedump/internal/svc"
+	"siphon/common/tool"
 
 	_ "siphon/common/carbonx"
 
@@ -24,6 +25,10 @@ func main() {
 
 	var c config.Config
 	conf.MustLoad(*configFile, &c)
+
+	// Print Go version
+	tool.PrintGoVersion()
+
 	ctx := svc.NewServiceContext(c)
 
 	s := zrpc.MustNewServer(c.RpcServerConf, func(grpcServer *grpc.Server) {
