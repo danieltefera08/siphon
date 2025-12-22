@@ -1,6 +1,7 @@
 package config
 
 import (
+	"time"
 	"siphon/common/iec104/iec104client"
 	"siphon/common/mqttx"
 
@@ -46,4 +47,6 @@ type Config struct {
 	SqliteDB       struct {
 		DataSource string `json:",optional"`
 	}
+	PushAsduChunkBytes int           `json:",default=1048576"` // 1M
+	GracePeriod        time.Duration `json:",default=10s"`
 }
