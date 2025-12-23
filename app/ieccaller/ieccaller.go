@@ -12,7 +12,7 @@ import (
 	"siphon/app/ieccaller/kafka"
 	interceptor "siphon/common/Interceptor/rpcserver"
 	_ "siphon/common/carbonx"
-	"siphon/common/iec104/iec104client"
+	"siphon/common/iec104/client"
 	"siphon/common/nacosx"
 	"siphon/common/tool"
 	"siphon/facade/streamevent/streamevent"
@@ -87,7 +87,9 @@ func main() {
 	serviceGroup.Add(s)
 
 	for _, cf := range c.IecServerConfig {
-		serviceGroup.Add(client.MustNewIecServerClient(cf, iec.NewClientCall(ctx, cf.Host, cf.Port, cf.MetaData, cf.TaskConcurrency), ctx.ClientManager))
+		iecCli := client.MustNewClient(cf.ClientConfig, client.WithASDUHandler(iec.NewClientCall(ctx, cf)))
+		serviceGroup.Add(iecCli)
+		ctx.ClientManager.PublishRegister(iecCli)
 	}
 
 	// cron

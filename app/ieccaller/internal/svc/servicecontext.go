@@ -9,8 +9,8 @@ import (
 	"siphon/app/ieccaller/internal/config"
 	interceptor "siphon/common/Interceptor/rpcclient"
 	"siphon/common/dbx"
-	"siphon/common/iec104"
-	"siphon/common/iec104/iec104client"
+	"siphon/common/executorx"
+	"siphon/common/iec104/client"
 	"siphon/common/iec104/types"
 	"siphon/common/iec104/util"
 	"siphon/common/mqttx"
@@ -36,7 +36,7 @@ type ServiceContext struct {
 	KafkaBroadcastPusher *kq.Pusher
 	MqttClient           *mqttx.Client
 	StreamEventCli       streamevent.StreamEventClient
-	ChunkAsduPusher      *iec104.ChunkAsduPusher
+	ChunkAsduPusher      *executorx.ChunkMessagesPusher
 
 	SqliteConn              sqlx.SqlConn
 	DevicePointMappingModel model.DevicePointMappingModel
@@ -70,11 +70,11 @@ func NewServiceContext(c config.Config) *ServiceContext {
 		).Conn())
 		svcCtx.StreamEventCli = streamEventCli
 
-		svcCtx.ChunkAsduPusher = iec104.NewChunkAsduPusher(
-			func(msgs []string) {
+		svcCtx.ChunkAsduPusher = executorx.NewChunkMessagesPusher(
+			func(messages []string) {
 				tid, _ := tool.SimpleUUID()
-				msgBodyList := make([]*streamevent.MsgBody, 0, len(msgs))
-				for _, s := range msgs {
+				msgBodyList := make([]*streamevent.MsgBody, 0, len(messages))
+				for _, s := range messages {
 					result := gjson.Parse(s)
 					bodyRaw := result.Get("body").Raw
 					typeId := result.Get("typeId").Int()

@@ -6,7 +6,7 @@ import (
 	"time"
 	"siphon/app/iecstash/internal/config"
 	interceptor "siphon/common/Interceptor/rpcclient"
-	"siphon/common/iec104"
+	"siphon/common/executorx"
 	"siphon/common/tool"
 	"siphon/facade/streamevent/streamevent"
 
@@ -20,7 +20,7 @@ import (
 type ServiceContext struct {
 	Config          config.Config
 	StreamEventCli  streamevent.StreamEventClient
-	ChunkAsduPusher *iec104.ChunkAsduPusher
+	ChunkAsduPusher *executorx.ChunkMessagesPusher
 }
 
 func NewServiceContext(c config.Config) *ServiceContext {
@@ -34,7 +34,7 @@ func NewServiceContext(c config.Config) *ServiceContext {
 		)),
 	).Conn())
 
-	chunkAsduPusher := iec104.NewChunkAsduPusher(
+	chunkAsduPusher := executorx.NewChunkMessagesPusher(
 		func(msgs []string) {
 			// 转换为streamevent.MsgBody列表
 			msgBodyList := make([]*streamevent.MsgBody, 0, len(msgs))
