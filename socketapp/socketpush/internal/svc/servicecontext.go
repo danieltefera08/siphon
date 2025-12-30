@@ -1,7 +1,7 @@
 package svc
 
 import (
-	"siphon/common/socketio"
+	"siphon/common/socketiox"
 	"siphon/socketapp/socketpush/internal/config"
 )
 

@@ -3,7 +3,6 @@ package logic
 import (
 	"context"
 	"time"
-	"siphon/common/tool"
 	"siphon/socketapp/socketgtw/socketgtw"
 
 	"siphon/socketapp/socketpush/internal/svc"
@@ -32,11 +31,10 @@ func (l *KickSessionLogic) KickSession(in *socketpush.KickSessionReq) (*socketpu
 	baseCtx := context.WithoutCancel(l.ctx)
 	for _, cli := range l.svcCtx.SocketContainer.GetClients() {
 		threading.GoSafe(func() {
-			reqId, _ := tool.SimpleUUID()
 			socktCTx, cancel := context.WithTimeout(baseCtx, 10*time.Second)
 			defer cancel()
 			cli.KickSession(socktCTx, &socketgtw.KickSessionReq{
-				ReqId: reqId,
+				ReqId: in.ReqId,
 				SId:   in.SId,
 			})
 		})
