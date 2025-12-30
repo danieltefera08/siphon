@@ -3,7 +3,7 @@ package handler
 import (
 	"net/http"
 	"siphon/common/socketio"
-	"siphon/gateway/socketgtw/internal/svc"
+	"siphon/socketapp/socketgtw/internal/svc"
 
 	"github.com/zeromicro/go-zero/rest"
 )

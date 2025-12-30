@@ -2,7 +2,7 @@ package svc
 
 import (
 	"siphon/common/socketio"
-	"siphon/gateway/socketgtw/internal/config"
+	"siphon/socketapp/socketgtw/internal/config"
 )
 
 type ServiceContext struct {

@@ -2,10 +2,8 @@ package logic
 
 import (
 	"context"
-	"errors"
-
-	"siphon/gateway/socketgtw/internal/svc"
-	"siphon/gateway/socketgtw/socketgtw"
+	"siphon/socketapp/socketgtw/internal/svc"
+	"siphon/socketapp/socketgtw/socketgtw"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -27,12 +25,11 @@ func NewLeaveRoomLogic(ctx context.Context, svcCtx *svc.ServiceContext) *LeaveRo
 // 离开房间
 func (l *LeaveRoomLogic) LeaveRoom(in *socketgtw.LeaveRoomReq) (*socketgtw.LeaveRoomRes, error) {
 	session := l.svcCtx.SocketServer.GetSession(in.SId)
-	if session == nil {
-		return nil, errors.New("session not found")
-	}
-	err := session.LeaveRoom(in.Room)
-	if err != nil {
-		return nil, err
+	if session != nil {
+		err := session.LeaveRoom(in.Room)
+		if err != nil {
+			return nil, err
+		}
 	}
 	return &socketgtw.LeaveRoomRes{}, nil
 }

@@ -6,24 +6,23 @@ import (
 	interceptor "siphon/common/Interceptor/rpcserver"
 	"siphon/common/nacosx"
 	"siphon/common/tool"
-	"siphon/gateway/socketgtw/internal/config"
-	"siphon/gateway/socketgtw/internal/handler"
-	"siphon/gateway/socketgtw/internal/server"
-	"siphon/gateway/socketgtw/internal/svc"
-	"siphon/gateway/socketgtw/socketgtw"
+
+	"siphon/socketapp/socketpush/internal/config"
+	"siphon/socketapp/socketpush/internal/server"
+	"siphon/socketapp/socketpush/internal/svc"
+	"siphon/socketapp/socketpush/socketpush"
 
 	"github.com/duke-git/lancet/v2/strutil"
 	"github.com/nacos-group/nacos-sdk-go/v2/common/constant"
 	"github.com/zeromicro/go-zero/core/conf"
 	"github.com/zeromicro/go-zero/core/logx"
 	"github.com/zeromicro/go-zero/core/service"
-	"github.com/zeromicro/go-zero/rest"
 	"github.com/zeromicro/go-zero/zrpc"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
 )
 
-var configFile = flag.String("f", "etc/socketgtw.yaml", "the config file")
+var configFile = flag.String("f", "etc/socketpush.yaml", "the config file")
 
 func main() {
 	flag.Parse()
@@ -36,15 +35,12 @@ func main() {
 	tool.PrintGoVersion()
 
 	s := zrpc.MustNewServer(c.RpcServerConf, func(grpcServer *grpc.Server) {
-		socketgtw.RegisterSocketGtwServer(grpcServer, server.NewSocketGtwServer(ctx))
+		socketpush.RegisterSocketPushServer(grpcServer, server.NewSocketPushServer(ctx))
 
 		if c.Mode == service.DevMode || c.Mode == service.TestMode {
 			reflection.Register(grpcServer)
 		}
 	})
-	c.Http.Name = c.Name
-	httpServer := rest.MustNewServer(c.Http)
-	handler.RegisterHandlers(httpServer, ctx)
 	// register service to nacos
 	if c.NacosConfig.IsRegister {
 		sc := []constant.ServerConfig{
@@ -66,11 +62,8 @@ func main() {
 	}
 	s.AddUnaryInterceptors(interceptor.LoggerInterceptor)
 	logx.AddGlobalFields(logx.Field("app", c.Name))
-	serviceGroup := service.NewServiceGroup()
-	defer serviceGroup.Stop()
-	serviceGroup.Add(httpServer)
-	serviceGroup.Add(s)
+	defer s.Stop()
+
 	fmt.Printf("Starting rpc server at %s...\n", c.ListenOn)
-	fmt.Printf("Starting server at %s:%d...\n", c.Http.Host, c.Http.Port)
-	serviceGroup.Start()
+	s.Start()
 }
