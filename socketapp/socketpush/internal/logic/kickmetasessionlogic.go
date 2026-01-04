@@ -37,5 +37,7 @@ func (l *KickMetaSessionLogic) KickMetaSession(in *socketpush.KickMetaSessionReq
 			})
 		})
 	}
-	return &socketpush.KickMetaSessionRes{}, nil
+	return &socketpush.KickMetaSessionRes{
+		ReqId: in.ReqId,
+	}, nil
 }
