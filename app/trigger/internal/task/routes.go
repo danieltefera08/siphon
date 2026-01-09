@@ -1,10 +1,11 @@
 package task
 
 import (
-	"github.com/hibiken/asynq"
-	"github.com/zeromicro/go-zero/core/logx"
 	"siphon/app/trigger/internal/svc"
 	"siphon/common/asynqx"
+
+	"github.com/hibiken/asynq"
+	"github.com/zeromicro/go-zero/core/logx"
 )
 
 type CronJob struct {

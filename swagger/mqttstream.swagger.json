@@ -1,0 +1,78 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "mqttstream.proto",
+    "version": "version not set"
+  },
+  "tags": [
+    {
+      "name": "MqttStream"
+    }
+  ],
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {},
+  "definitions": {
+    "mqttstreamMqttMessage": {
+      "type": "object",
+      "properties": {
+        "sessionId": {
+          "type": "string",
+          "title": "会话ID"
+        },
+        "msgId": {
+          "type": "string",
+          "title": "消息唯一标识"
+        },
+        "topic": {
+          "type": "string",
+          "title": "MQTT主题"
+        },
+        "payload": {
+          "type": "string",
+          "format": "byte",
+          "title": "消息体"
+        },
+        "sendTime": {
+          "type": "string",
+          "title": "消息发送时间"
+        }
+      }
+    },
+    "mqttstreamReceiveMessageRes": {
+      "type": "object"
+    },
+    "protobufAny": {
+      "type": "object",
+      "properties": {
+        "@type": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": {}
+    },
+    "rpcStatus": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "message": {
+          "type": "string"
+        },
+        "details": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/protobufAny"
+          }
+        }
+      }
+    }
+  }
+}
