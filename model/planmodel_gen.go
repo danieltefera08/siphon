@@ -73,6 +73,7 @@ type (
 		TerminatedReason sql.NullString `db:"terminated_reason"` // 终止原因
 		PausedTime       sql.NullTime   `db:"paused_time"`       // 暂停时间
 		PausedReason     sql.NullString `db:"paused_reason"`     // 暂停原因
+		CompletedTime    sql.NullTime   `db:"completed_time"`    // 完成时间
 		Description      sql.NullString `db:"description"`       // 备注信息
 		Ext1             sql.NullString `db:"ext_1"`             // 扩展字段1
 		Ext2             sql.NullString `db:"ext_2"`             // 扩展字段2
