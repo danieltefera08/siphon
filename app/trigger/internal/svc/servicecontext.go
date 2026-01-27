@@ -6,6 +6,7 @@ import (
 	interceptor "siphon/common/Interceptor/rpcclient"
 	"siphon/common/asynqx"
 	"siphon/common/dbx"
+	"siphon/common/tool"
 	"siphon/facade/streamevent/streamevent"
 	"siphon/model"
 
@@ -42,6 +43,7 @@ type ServiceContext struct {
 	UnstableExpiry    mathx.Unstable
 	Redis             *redis.Redis
 	StreamEventCli    streamevent.StreamEventClient
+	IdUtil            *tool.IdUtil
 }
 
 func NewServiceContext(c config.Config) *ServiceContext {
@@ -81,5 +83,6 @@ func NewServiceContext(c config.Config) *ServiceContext {
 				//grpc.MaxCallRecvMsgSize(100 * 1024 * 1024),  // 接收最大100MB
 			)),
 		).Conn()),
+		IdUtil: tool.NewIdUtil(redisDb),
 	}
 }
