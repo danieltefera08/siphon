@@ -5,6 +5,8 @@ import (
 	"database/sql"
 	"fmt"
 	"time"
+	"siphon/common/tool"
+	"siphon/third_party/extproto"
 
 	"siphon/app/trigger/internal/svc"
 	"siphon/app/trigger/trigger"
@@ -53,6 +55,9 @@ func (l *CallbackPlanExecItemLogic) CallbackPlanExecItem(in *trigger.CallbackPla
 		execItem, err = l.svcCtx.PlanExecItemModel.FindOneByExecId(l.ctx, in.ExecId)
 	}
 	if err != nil {
+		if err == sqlx.ErrNotFound {
+			return nil, tool.NewErrorByPbCode(extproto.Code__1_02_RECORD_NOT_EXIST)
+		}
 		return nil, err
 	}
 	lockKey := fmt.Sprintf("trigger:lock:plan:exec:%s", execItem.ExecId)
