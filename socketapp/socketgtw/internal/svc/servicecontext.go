@@ -4,6 +4,7 @@ import (
 	"math"
 	interceptor "siphon/common/Interceptor/rpcclient"
 	"siphon/common/socketiox"
+	"siphon/common/tool"
 	"siphon/facade/streamevent/streamevent"
 	"siphon/socketapp/socketgtw/internal/config"
 	"siphon/socketapp/socketgtw/internal/sockethandler"
@@ -34,6 +35,40 @@ func NewServiceContext(c config.Config) *ServiceContext {
 	svcCtx.SocketServer = socketiox.MustServer(
 		socketiox.WithContextKeys(c.SocketMetaData),
 		socketiox.WithHandler(socketiox.EventUp, sockethandler.NewSocketUpHandler(svcCtx.StreamEventCli)),
+		socketiox.WithTokenValidator(func(token string) bool {
+			if c.JwtAuth.AccessSecret == "" {
+				return true
+			}
+			if token == "" {
+				return false
+			}
+			secrets := []string{c.JwtAuth.AccessSecret}
+			if len(c.JwtAuth.PrevAccessSecret) > 0 {
+				secrets = append(secrets, c.JwtAuth.PrevAccessSecret)
+			}
+			_, err := tool.ParseToken(token, secrets...)
+			if err != nil {
+				return false
+			}
+			return true
+		}),
+		socketiox.WithTokenValidatorWithClaims(func(token string) (map[string]interface{}, bool) {
+			if c.JwtAuth.AccessSecret == "" {
+				return nil, true
+			}
+			if token == "" {
+				return nil, false
+			}
+			secrets := []string{c.JwtAuth.AccessSecret}
+			if len(c.JwtAuth.PrevAccessSecret) > 0 {
+				secrets = append(secrets, c.JwtAuth.PrevAccessSecret)
+			}
+			claims, err := tool.ParseToken(token, secrets...)
+			if err != nil {
+				return nil, false
+			}
+			return claims, true
+		}),
 	)
 	return svcCtx
 }
