@@ -2,8 +2,15 @@ func (m *default{{.upperStartCamelObject}}Model) FindOne(ctx context.Context, {{
 	{{if .withCache}}{{.cacheKey}}
 	var resp {{.upperStartCamelObject}}
 	err := m.QueryRowCtx(ctx, &resp, {{.cacheKeyVariable}}, func(ctx context.Context, conn sqlx.SqlConn, v any) error {
-		query :=  fmt.Sprintf("select %s from %s where {{.originalPrimaryKey}} = {{if .postgreSql}}$1{{else}}?{{end}} and del_state = ? limit 1", {{.lowerStartCamelObject}}Rows, m.table)
-		return conn.QueryRowCtx(ctx, v, query, {{.lowerStartCamelPrimaryKey}}, 0)
+		selectBuilder := m.SelectBuilder().Columns(m.rows).
+			Where("id = ?", {{.lowerStartCamelPrimaryKey}}).
+			Where("del_state = ?", 0).
+			Limit(1)
+		query, args, err := selectBuilder.ToSql()
+		if err != nil {
+			return err
+		}
+		return conn.QueryRowCtx(ctx, v, query, args...)
 	})
 	switch err {
 	case nil:
@@ -12,9 +19,16 @@ func (m *default{{.upperStartCamelObject}}Model) FindOne(ctx context.Context, {{
 		return nil, ErrNotFound
 	default:
 		return nil, err
-	}{{else}}query := fmt.Sprintf("select %s from %s where {{.originalPrimaryKey}} = {{if .postgreSql}}$1{{else}}?{{end}} and del_state = ? limit 1", {{.lowerStartCamelObject}}Rows, m.table)
+	}{{else}}selectBuilder := m.SelectBuilder().Columns(m.rows).
+		Where("id = ?", {{.lowerStartCamelPrimaryKey}}).
+		Where("del_state = ?", 0).
+		Limit(1)
+	query, args, err := selectBuilder.ToSql()
+	if err != nil {
+		return nil, err
+	}
 	var resp {{.upperStartCamelObject}}
-	err := m.conn.QueryRowCtx(ctx, &resp, query, {{.lowerStartCamelPrimaryKey}}, 0)
+	err = m.conn.QueryRowCtx(ctx, &resp, query, args...)
 	switch err {
 	case nil:
 		return &resp, nil
