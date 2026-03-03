@@ -2,10 +2,10 @@ package interceptor
 
 import (
 	"context"
+	"siphon/common/ctxdata"
+
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/metadata"
-	"strconv"
-	"siphon/common/ctxdata"
 )
 
 func UnaryMetadataInterceptor(ctx context.Context, method string, req, reply any,
