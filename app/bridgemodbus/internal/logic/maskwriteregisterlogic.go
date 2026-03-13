@@ -2,9 +2,9 @@ package logic
 
 import (
 	"context"
-	"errors"
-	"fmt"
 	"siphon/common/modbusx"
+	"siphon/common/tool"
+	"siphon/third_party/extproto"
 
 	"siphon/app/bridgemodbus/bridgemodbus"
 	"siphon/app/bridgemodbus/internal/svc"
@@ -38,11 +38,11 @@ func (l *MaskWriteRegisterLogic) MaskWriteRegister(in *bridgemodbus.MaskWriteReg
 		if !ok {
 			mdCliPool, err = l.svcCtx.AddPool(l.ctx, in.ModbusCode)
 			if err != nil {
-				return nil, fmt.Errorf("创建Modbus连接池失败: %w", err)
+				return nil, tool.NewErrorByPbCode(extproto.Code__1_05_BIZ, "创建Modbus连接池失败")
 			}
 		}
 		if mdCliPool == nil {
-			return nil, errors.New("获取的Modbus连接池为空")
+			return nil, tool.NewErrorByPbCode(extproto.Code__1_05_BIZ, "获取的Modbus连接池为空")
 		}
 	}
 	mbCli := mdCliPool.Get()
