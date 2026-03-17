@@ -2,6 +2,7 @@ package logic
 
 import (
 	"context"
+	"siphon/common/bytex"
 	"siphon/common/modbusx"
 	"siphon/common/tool"
 	"siphon/third_party/extproto"
@@ -61,8 +62,8 @@ func (l *WriteMultipleCoilsLogic) WriteMultipleCoils(in *bridgemodbus.WriteMulti
 			valuesBytes[i/8] |= 1 << (i % 8)
 		}
 	}
-	binaryValues := tool.BytesToBinaryValues(valuesBytes)
-	l.Infof("写多个线圈: 0x%X, hex=%v, uint=%v, int=%v, binary=%v", binaryValues.Bytes, binaryValues.Hex, binaryValues.Uint, binaryValues.Int, binaryValues.Binary)
+	binaryValues := bytex.BytesToBinaryValues(valuesBytes)
+	l.Infof("写多个线圈: 0x%X, hex=%v, uint16=%v, int16=%v, binary=%v", binaryValues.Bytes, binaryValues.Hex, binaryValues.Uint16, binaryValues.Int16, binaryValues.Binary)
 	results, err := mbCli.WriteMultipleCoils(l.ctx, uint16(in.Address), uint16(in.Quantity), binaryValues.Bytes)
 	if err != nil {
 		return nil, err
