@@ -4,6 +4,8 @@
 package main
 
 import (
+	"context"
+	"errors"
 	"flag"
 	"fmt"
 	"net/http"
@@ -11,6 +13,7 @@ import (
 	"siphon/aiapp/aigtw/internal/config"
 	"siphon/aiapp/aigtw/internal/handler"
 	"siphon/aiapp/aigtw/internal/svc"
+	"siphon/aiapp/aigtw/internal/types"
 
 	_ "siphon/common/nacosx"
 	"siphon/common/tool"
@@ -19,12 +22,28 @@ import (
 	"github.com/zeromicro/go-zero/core/logx"
 	"github.com/zeromicro/go-zero/core/service"
 	"github.com/zeromicro/go-zero/rest"
+	"github.com/zeromicro/go-zero/rest/httpx"
 )
 
 var configFile = flag.String("f", "etc/aigtw.yaml", "the config file")
 
 func main() {
 	flag.Parse()
+
+	// 设置 OpenAI 风格错误处理器
+	httpx.SetErrorHandlerCtx(func(ctx context.Context, err error) (int, any) {
+		var openAIErr *types.OpenAIError
+		if errors.As(err, &openAIErr) {
+			return openAIErr.HTTPStatus, openAIErr
+		}
+		return http.StatusInternalServerError, &types.OpenAIError{
+			HTTPStatus: http.StatusInternalServerError,
+			ErrorMsg: types.ErrorDetail{
+				Type:    "internal_error",
+				Message: err.Error(),
+			},
+		}
+	})
 
 	var c config.Config
 	conf.MustLoad(*configFile, &c)
