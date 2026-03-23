@@ -6,12 +6,12 @@ package main
 import (
 	"flag"
 	"fmt"
-	"net/http"
 
 	"siphon/aiapp/ssegtw/internal/config"
 	"siphon/aiapp/ssegtw/internal/handler"
 	"siphon/aiapp/ssegtw/internal/svc"
 
+	"siphon/common/gtwx"
 	_ "siphon/common/nacosx"
 	"siphon/common/tool"
 
@@ -32,18 +32,7 @@ func main() {
 	// Print Go version
 	tool.PrintGoVersion()
 
-	server := rest.MustNewServer(c.RestConf, rest.WithCustomCors(func(header http.Header) {
-		origin := header.Get("Origin")
-		if origin != "" {
-			header.Set("Access-Control-Allow-Origin", origin)
-		}
-		header.Set("Vary", "Origin")
-
-		header.Set("Access-Control-Allow-Credentials", "true")
-		header.Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS, PATCH")
-		header.Set("Access-Control-Allow-Headers", "Content-Type, AccessToken, X-CSRF-Token, Authorization, Token, X-Token, X-User-Id")
-		header.Set("Access-Control-Expose-Headers", "Content-Length, Content-Type")
-	}, nil, "*"))
+	server := rest.MustNewServer(c.RestConf, gtwx.CorsOption())
 
 	ctx := svc.NewServiceContext(c)
 	handler.RegisterHandlers(server, ctx)
