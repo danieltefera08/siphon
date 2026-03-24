@@ -7,7 +7,7 @@ import (
 	"time"
 	"siphon/app/alarm/alarm"
 	"siphon/common/asynqx"
-	"siphon/common/ctxdata"
+	"siphon/common/msgbody"
 	"siphon/zerorpc/internal/svc"
 	"siphon/zerorpc/zerorpc"
 
@@ -43,7 +43,7 @@ func (l *ForwardTaskLogic) ForwardTask(in *zerorpc.ForwardTaskReq) (*zerorpc.For
 	defer span.End()
 	carrier := &propagation.HeaderCarrier{}
 	otel.GetTextMapPropagator().Inject(spanCtx, carrier)
-	msg := &ctxdata.MsgBody{
+	msg := &msgbody.MsgBody{
 		MsgId:   in.MsgId,
 		Carrier: carrier,
 		Msg:     in.Body,

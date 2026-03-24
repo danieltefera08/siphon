@@ -9,7 +9,7 @@ import (
 	"siphon/app/trigger/internal/svc"
 	interceptor "siphon/common/Interceptor/rpcclient"
 	"siphon/common/asynqx"
-	"siphon/common/ctxdata"
+	"siphon/common/msgbody"
 	"siphon/common/tool"
 
 	"github.com/hibiken/asynq"
@@ -40,7 +40,7 @@ func (l *DeferTriggerProtoTaskHandler) ProcessTask(ctx context.Context, t *asynq
 	defer l.metrics.Add(stat.Task{
 		Duration: timex.Since(startTime),
 	})
-	var msg ctxdata.ProtoMsgBody
+	var msg msgbody.ProtoMsgBody
 	if err := json.Unmarshal([]byte(t.Payload()), &msg); err != nil {
 		return err
 	} else {

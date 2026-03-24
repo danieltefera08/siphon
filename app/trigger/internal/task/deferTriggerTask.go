@@ -8,7 +8,7 @@ import (
 	"time"
 	"siphon/app/trigger/internal/svc"
 	"siphon/common/asynqx"
-	"siphon/common/ctxdata"
+	"siphon/common/msgbody"
 
 	"github.com/hibiken/asynq"
 	"github.com/zeromicro/go-zero/core/logx"
@@ -34,7 +34,7 @@ func (l *DeferTriggerTaskHandler) ProcessTask(ctx context.Context, t *asynq.Task
 	defer l.metrics.Add(stat.Task{
 		Duration: timex.Since(startTime),
 	})
-	var msg ctxdata.MsgBody
+	var msg msgbody.MsgBody
 	if err := json.Unmarshal([]byte(t.Payload()), &msg); err != nil {
 		return err
 	} else {

@@ -7,7 +7,7 @@ import (
 	"siphon/app/trigger/internal/svc"
 	"siphon/app/trigger/trigger"
 	"siphon/common/asynqx"
-	"siphon/common/ctxdata"
+	"siphon/common/msgbody"
 
 	"github.com/dromara/carbon/v2"
 	"github.com/google/uuid"
@@ -47,7 +47,7 @@ func (l *SendProtoTriggerLogic) SendProtoTrigger(in *trigger.SendProtoTriggerReq
 	if !matsh {
 		return nil, errors.New("grpcServer is invalid")
 	}
-	msg := &ctxdata.ProtoMsgBody{
+	msg := &msgbody.ProtoMsgBody{
 		MsgId:          in.MsgId,
 		Carrier:        carrier,
 		GrpcServer:     in.GrpcServer,
