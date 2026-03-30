@@ -2,6 +2,7 @@ package svc
 
 import (
 	"siphon/aiapp/mcpserver/internal/config"
+	"siphon/aiapp/mcpserver/internal/skills"
 	"siphon/app/bridgemodbus/bridgemodbus"
 	interceptor "siphon/common/Interceptor/rpcclient"
 
@@ -11,9 +12,20 @@ import (
 type ServiceContext struct {
 	Config          config.Config
 	BridgeModbusCli bridgemodbus.BridgeModbusClient
+	SkillsLoader    *skills.Loader
 }
 
-func NewServiceContext(c config.Config) *ServiceContext {
+func NewServiceContext(c config.Config) (*ServiceContext, error) {
+	// 初始化 skills loader
+	var skillsLoader *skills.Loader
+	if c.Skills.Dir != "" {
+		var err error
+		skillsLoader, err = skills.NewLoader(c.Skills.Dir, c.Skills.AutoReload)
+		if err != nil {
+			return nil, err
+		}
+	}
+
 	return &ServiceContext{
 		Config: c,
 		BridgeModbusCli: bridgemodbus.NewBridgeModbusClient(
@@ -21,5 +33,6 @@ func NewServiceContext(c config.Config) *ServiceContext {
 				zrpc.WithUnaryClientInterceptor(interceptor.UnaryMetadataInterceptor),
 				zrpc.WithStreamClientInterceptor(interceptor.StreamTracingInterceptor),
 			).Conn()),
-	}
+		SkillsLoader: skillsLoader,
+	}, nil
 }
