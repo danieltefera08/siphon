@@ -31,6 +31,7 @@
 - [aiapp/aichat/internal/logic/listmodelslogic.go](file://aiapp/aichat/internal/logic/listmodelslogic.go)
 - [aiapp/aichat/internal/logic/asynctoolcalllogic.go](file://aiapp/aichat/internal/logic/asynctoolcalllogic.go)
 - [aiapp/aichat/internal/logic/asynctoolresultlogic.go](file://aiapp/aichat/internal/logic/asynctoolresultlogic.go)
+- [aiapp/aichat/internal/logic/listasyncresultslogic.go](file://aiapp/aichat/internal/logic/listasyncresultslogic.go)
 - [aiapp/aichat/internal/mcpclient/client.go](file://aiapp/aichat/internal/mcpclient/client.go)
 - [aiapp/aichat/internal/provider/openai.go](file://aiapp/aichat/internal/provider/openai.go)
 - [aiapp/aichat/internal/provider/registry.go](file://aiapp/aichat/internal/provider/registry.go)
@@ -47,6 +48,7 @@
 - [aiapp/aigtw/internal/logic/pass/chatcompletionslogic.go](file://aiapp/aigtw/internal/logic/pass/chatcompletionslogic.go)
 - [aiapp/aigtw/internal/logic/pass/asyncToolCallLogic.go](file://aiapp/aigtw/internal/logic/pass/asyncToolCallLogic.go)
 - [aiapp/aigtw/internal/logic/pass/asynctoolresultlogic.go](file://aiapp/aigtw/internal/logic/pass/asynctoolresultlogic.go)
+- [aiapp/aigtw/internal/logic/pass/listasyncresultslogic.go](file://aiapp/aigtw/internal/logic/pass/listasyncresultslogic.go)
 - [aiapp/aigtw/internal/handler/routes.go](file://aiapp/aigtw/internal/handler/routes.go)
 - [aiapp/aigtw/internal/svc/servicecontext.go](file://aiapp/aigtw/internal/svc/servicecontext.go)
 - [common/mcpx/client.go](file://common/mcpx/client.go)
@@ -59,12 +61,12 @@
 
 ## 更新摘要
 **所做更改**
-- 新增异步工具调用功能，包括完整的异步处理流程和HTML测试界面
-- 增强MCP工具调用系统，支持异步任务管理和进度跟踪
+- 增强AI聊天服务的流式工具调用功能，支持混合流式响应和实时进度通知
+- 新增完整的异步工具调用系统，包括异步任务提交、状态查询和进度跟踪
+- 完善AIGTW网关的REST接口，新增异步工具调用和结果查询功能
+- 增强MCP客户端的进度回调机制，支持实时进度通知和任务观察
 - 新增内存异步结果处理器，支持任务状态持久化和查询
-- 新增测试进度工具，演示异步任务的进度通知机制
-- 更新AIGTW网关，新增异步工具调用的REST接口
-- 新增完整的异步工具调用HTML测试页面，支持轮询查询
+- 更新服务上下文，集成异步工具调用的完整生命周期管理
 
 ## 目录
 1. [简介](#简介)
@@ -83,7 +85,9 @@
 本技术文档聚焦Siphon的AI应用模块，围绕四个核心子系统展开：
 - SSE网关服务（ssegtw）：基于Server-Sent Events的事件流网关，支持AI对话流与通用事件流，具备心跳保活、通道隔离、完成信号注册等能力。
 - MCP服务器（mcpserver）：提供标准化的AI工具调用接口，支持工具注册与跨域配置。
+- **新增** 增强的AI聊天服务：支持流式工具调用功能，能够在同一流中混合LLM token和工具进度通知。
 - **新增** 异步工具调用系统：支持长时间运行的MCP工具异步执行，提供任务提交、状态查询和进度跟踪功能。
+- **新增** AIGTW网关增强：提供OpenAI兼容的REST接口和SSE流式响应，新增异步工具调用REST接口。
 - **新增** HTML测试界面：提供完整的异步工具调用测试页面，支持JWT认证和轮询查询。
 - **新增** 内存异步结果处理器：基于内存缓存的异步结果存储，支持任务状态持久化和查询。
 - **新增** 测试进度工具：演示异步任务的进度通知机制，模拟长时间运行的任务。
@@ -102,12 +106,12 @@ graph TB
 subgraph "AI 应用模块"
 A["ssegtw<br/>SSE网关服务"]
 B["mcpserver<br/>MCP服务器"]
-C["aichat<br/>AI聊天RPC服务"]
-D["aigtw<br/>AI网关服务<br/>JWT认证"]
-E["异步工具调用系统"]
-F["HTML测试界面"]
-G["内存异步结果处理器"]
-H["测试进度工具"]
+C["aichat<br/>AI聊天RPC服务<br/>流式工具调用增强"]
+D["aigtw<br/>AI网关服务<br/>JWT认证 + 异步工具调用"]
+E["异步工具调用系统<br/>完整生命周期管理"]
+F["HTML测试界面<br/>JWT认证 + 轮询查询"]
+G["内存异步结果处理器<br/>任务状态持久化"]
+H["测试进度工具<br/>实时进度通知"]
 end
 subgraph "公共组件"
 I["common/ssex<br/>SSE写入器"]
@@ -115,13 +119,13 @@ J["common/antsx<br/>事件发射器/等待注册"]
 K["zerorpc 客户端<br/>RPC客户端"]
 L["HTTP客户端<br/>httpc"]
 M["模型提供商<br/>OpenAI兼容"]
-N["MCP客户端<br/>MCP SDK客户端"]
+N["MCP客户端<br/>MCP SDK客户端<br/>进度回调增强"]
 O["工具注册表<br/>工具注册与管理"]
 P["MCP客户端配置<br/>多服务器连接管理"]
 Q["JWT认证中间件<br/>用户上下文传递"]
 R["ctxdata上下文键<br/>用户信息常量"]
-S["异步结果处理器接口"]
-T["异步工具结果结构"]
+S["异步结果处理器接口<br/>任务观察者模式"]
+T["异步工具结果结构<br/>进度消息支持"]
 end
 A --> I
 A --> J
@@ -179,11 +183,22 @@ Q --> R
   - 跨域配置与消息超时设置
   - Modbus设备桥接功能
   - **更新** 增强的日志配置：Encoding: plain和Path: /opt/logs/mcpserver
+- **新增** 增强的AI聊天服务
+  - 流式聊天补全：支持混合流式响应和工具进度通知
+  - 工具调用循环：支持多轮工具调用和上下文管理
+  - 异步工具调用：支持后台任务执行和进度回调
+  - 服务上下文：集成MCP客户端和异步结果处理器
 - **新增** 异步工具调用系统
   - 异步工具调用逻辑：提交异步任务并返回任务ID
   - 异步结果查询逻辑：轮询查询任务执行状态和结果
   - 异步结果处理器：支持内存存储和Redis等多种存储方式
   - 进度回调机制：支持工具执行进度的实时通知
+- **新增** AIGTW网关增强
+  - OpenAI兼容接口：健康检查、模型列表、聊天补全
+  - **新增** 异步工具调用REST接口：/aigtw/v1/async/tool/call
+  - **新增** 异步结果查询REST接口：/aigtw/v1/async/tool/result/{task_id}
+  - JWT认证中间件：用户身份验证和授权
+  - 聊天界面集成：现代化Web聊天界面
 - **新增** HTML测试界面
   - 异步工具调用测试页面：支持JWT认证和轮询查询
   - 实时进度显示：进度条和状态徽章
@@ -227,7 +242,7 @@ JWT --> Gateway["AIGTW网关"]
 Gateway --> RPC["AiChat RPC服务"]
 RPC --> Provider["模型提供商"]
 Provider --> Model["AI模型"]
-RPC --> MCPClient["MCP客户端"]
+RPC --> MCPClient["MCP客户端<br/>进度回调增强"]
 MCPClient --> MCP["MCP服务器"]
 MCP --> Tools["工具注册表"]
 Tools --> Modbus["Modbus桥接"]
@@ -240,8 +255,14 @@ AsyncHandler --> MemoryStore["内存存储"]
 AsyncAPI --> ResultQuery["结果查询逻辑"]
 ResultQuery --> AsyncHandler
 end
+subgraph "流式工具调用流程"
+Client3["客户端"] --> StreamAPI["流式工具调用"]
+StreamAPI --> StreamLogic["混合流式逻辑"]
+StreamLogic --> ProgressNotify["进度通知"]
+ProgressNotify --> StreamAPI
+end
 subgraph "传统SSE服务"
-Client3["客户端"] --> SSE["SSE网关服务"]
+Client4["客户端"] --> SSE["SSE网关服务"]
 SSE --> Logic["事件流逻辑"]
 Logic --> Writer["SSE写入器"]
 end
@@ -507,6 +528,7 @@ StartSrv --> End(["运行中"])
 - 工具列表缓存：初始化时获取并缓存工具列表
 - 动态刷新机制：监听工具列表变化事件
 - **更新** 多服务器连接管理：支持多个MCP服务器配置，自动生成工具名前缀
+- **新增** 进度回调增强：支持带进度通知的工具调用
 
 ```mermaid
 sequenceDiagram
@@ -555,6 +577,7 @@ MC-->>AC : "连接成功"
 
 #### 工具调用执行
 - CallTool：执行MCP工具调用，返回文本结果
+- **新增** CallToolWithProgress：带进度通知的工具调用
 - 参数解析：ParseArgs将JSON字符串解析为map
 - 结果处理：拼接多内容块为文本
 - **新增** 工具路由：根据带前缀的工具名路由到对应MCP服务器
@@ -570,128 +593,66 @@ MC-->>AC : "连接成功"
 **章节来源**
 - [aiapp/aichat/internal/mcpclient/client.go:120-126](file://aiapp/aichat/internal/mcpclient/client.go#L120-L126)
 
-### 工具调用能力（aichat）
+### 增强的AI聊天服务（aichat）
 
-#### 多轮工具调用循环
-- 循环控制：MaxToolRounds配置限制最大轮次
-- 条件判断：检查FinishReason是否为tool_calls
-- 消息管理：将工具调用结果追加到消息历史
+#### 流式工具调用功能
+- **新增** 混合流式逻辑：在同一流中混合LLM token和工具进度通知
+- **新增** 工具调用缓冲：ToolCallBuffer累积增量工具调用
+- **新增** 实时进度通知：通过流式响应实时推送工具执行进度
+- **新增** 多轮工具调用：支持最多MaxToolRounds轮工具调用循环
 
 ```mermaid
-flowchart TD
-Start(["开始聊天"]) --> Req["构建请求"]
-Req --> Call["调用模型"]
-Call --> Check{"FinishReason == tool_calls?"}
-Check --> |否| Return["返回结果"]
-Check --> |是| ToolLoop["工具调用循环"]
-ToolLoop --> CallTool["调用工具"]
-CallTool --> Append["追加工具结果"]
-Append --> More{"还有工具调用?"}
-More --> |是| ToolLoop
-More --> |否| Return
+sequenceDiagram
+participant Client as "客户端"
+participant StreamLogic as "流式逻辑"
+participant LLM as "LLM模型"
+participant MCP as "MCP客户端"
+participant Tool as "工具执行"
+Client->>StreamLogic : "开始流式对话"
+StreamLogic->>LLM : "请求流式响应"
+LLM-->>StreamLogic : "返回token片段"
+StreamLogic->>Client : "发送token到前端"
+alt "检测到工具调用"
+StreamLogic->>MCP : "开始工具调用"
+MCP->>Tool : "执行工具"
+Tool-->>MCP : "进度更新"
+MCP-->>StreamLogic : "进度回调"
+StreamLogic->>Client : "发送进度到前端"
+Tool-->>MCP : "工具完成"
+MCP-->>StreamLogic : "返回结果"
+StreamLogic->>LLM : "回填工具结果"
+LLM-->>StreamLogic : "继续生成响应"
+StreamLogic->>Client : "发送最终响应"
+end
 ```
 
 **图表来源**
-- [aiapp/aichat/internal/logic/chatcompletionlogic.go:48-85](file://aiapp/aichat/internal/logic/chatcompletionlogic.go#L48-L85)
-
-**章节来源**
-- [aiapp/aichat/internal/logic/chatcompletionlogic.go:48-85](file://aiapp/aichat/internal/logic/chatcompletionlogic.go#L48-L85)
+- [aiapp/aichat/internal/logic/chatcompletionstreamlogic.go:75-242](file://aiapp/aichat/internal/logic/chatcompletionstreamlogic.go#L75-L242)
 
 #### 工具调用循环实现
-- 非流式调用：先完成所有工具调用，再进行最终回答
-- 流式调用：在流式响应中处理工具调用
-- 错误处理：工具调用失败时返回错误信息
+- **更新** 混合流式循环：同时处理LLM流式响应和工具进度通知
+- **新增** 工具调用缓冲：累积增量tool_calls并按id拼接
+- **新增** 实时进度推送：通过流式响应实时推送工具执行进度
+- **新增** 多轮工具调用：支持最多MaxToolRounds轮工具调用循环
 
 **章节来源**
-- [aiapp/aichat/internal/logic/chatcompletionstreamlogic.go:53-90](file://aiapp/aichat/internal/logic/chatcompletionstreamlogic.go#L53-L90)
+- [aiapp/aichat/internal/logic/chatcompletionstreamlogic.go:75-242](file://aiapp/aichat/internal/logic/chatcompletionstreamlogic.go#L75-L242)
 
-#### 最大工具轮次配置
-- MaxToolRounds：默认10轮，防止无限循环
-- 超时控制：总超时和空闲超时双重保障
-- 资源保护：避免工具调用导致的资源耗尽
-
-**章节来源**
-- [aiapp/aichat/etc/aichat.yaml:7](file://aiapp/aichat/etc/aichat.yaml#L7)
-- [aiapp/aichat/internal/config/config.go:26-34](file://aiapp/aichat/internal/config/config.go#L26-L34)
-
-#### 工具调用参数解析
-- ParseArgs：将JSON字符串参数解析为map
-- 错误恢复：解析失败时返回空map
-- 类型安全：支持任意类型的参数值
-
-**章节来源**
-- [aiapp/aichat/internal/mcpclient/client.go:128-136](file://aiapp/aichat/internal/mcpclient/client.go#L128-L136)
-
-### AiChat服务（aichat）
-
-#### 服务入口与配置
-- 解析配置文件，打印Go版本，创建服务上下文
-- 注册AiChat服务到gRPC服务器，启用反射支持（开发模式）
-- 添加全局日志字段，启动RPC服务
-
-**章节来源**
-- [aiapp/aichat/aichat.go:23-46](file://aiapp/aichat/aichat.go#L23-L46)
-- [aiapp/aichat/etc/aichat.yaml:1-49](file://aiapp/aichat/etc/aichat.yaml#L1-L49)
-
-#### gRPC接口定义
-- Ping：健康检查接口
-- ChatCompletion：非流式聊天补全
-- ChatCompletionStream：流式聊天补全
-- ListModels：列出可用模型
-- **新增** AsyncToolCall：异步调用MCP工具
+#### 异步工具调用能力
+- **新增** AsyncToolCall：异步调用MCP工具，立即返回任务ID
 - **新增** AsyncToolResult：查询异步工具调用结果
+- **新增** ListAsyncResults：分页查询异步结果列表
+- **新增** 异步结果处理器：支持内存存储和Redis等多种存储方式
 
 **章节来源**
-- [aiapp/aichat/aichat.proto:105-114](file://aiapp/aichat/aichat.proto#L105-L114)
-- [aiapp/aichat/aichat.proto:214-308](file://aiapp/aichat/aichat.proto#L214-L308)
-
-#### 深度思考模式支持
-- EnableThinking：布尔值控制是否启用深度思考
-- ReasoningContent：推理思考过程内容
-- 不同厂商的thinking参数格式：
-  - DashScope：enable_thinking: true
-  - 其他厂商：thinking对象，包含type和clear_thinking
-
-**章节来源**
-- [aiapp/aichat/aichat.proto:16-37](file://aiapp/aichat/aichat.proto#L16-L37)
-- [aiapp/aichat/internal/logic/chatcompletionlogic.go:122-158](file://aiapp/aichat/internal/logic/chatcompletionlogic.go#L122-L158)
-
-#### 模型配置管理
-- Providers：支持多个模型提供商（Zhipu、DashScope）
-- Models：模型映射关系，支持不同后端模型
-- 配置示例：GLM-4-Flash、GLM-5、Qwen3-Plus
-
-**章节来源**
-- [aiapp/aichat/etc/aichat.yaml:23-49](file://aiapp/aichat/etc/aichat.yaml#L23-L49)
-- [aiapp/aichat/internal/config/config.go:9-30](file://aiapp/aichat/internal/config/config.go#L9-L30)
-
-#### OpenAI兼容实现
-- OpenAICompatible：兼容OpenAI协议的提供商实现
-- 支持非流式和流式聊天补全
-- SSE流式响应解析，支持[DONE]标记
-
-**章节来源**
-- [aiapp/aichat/internal/provider/openai.go:16-100](file://aiapp/aichat/internal/provider/openai.go#L16-L100)
-- [aiapp/aichat/internal/provider/openai.go:149-197](file://aiapp/aichat/internal/provider/openai.go#L149-L197)
-
-#### 逻辑处理流程
-- ChatCompletion：获取提供商、构建请求、调用提供商、转换响应
-- ChatCompletionStream：建立gRPC流、读取chunk、发送SSE响应
-- ListModels：遍历配置返回模型列表
-- **新增** AsyncToolCall：异步工具调用逻辑处理
-- **新增** AsyncToolResult：异步结果查询逻辑处理
-
-**章节来源**
-- [aiapp/aichat/internal/logic/chatcompletionlogic.go:29-48](file://aiapp/aichat/internal/logic/chatcompletionlogic.go#L29-L48)
-- [aiapp/aichat/internal/logic/chatcompletionstreamlogic.go:30-73](file://aiapp/aichat/internal/logic/chatcompletionstreamlogic.go#L30-L73)
-- [aiapp/aichat/internal/logic/listmodelslogic.go:27-43](file://aiapp/aichat/internal/logic/listmodelslogic.go#L27-L43)
 - [aiapp/aichat/internal/logic/asynctoolcalllogic.go:26-67](file://aiapp/aichat/internal/logic/asynctoolcalllogic.go#L26-L67)
 - [aiapp/aichat/internal/logic/asynctoolresultlogic.go:24-45](file://aiapp/aichat/internal/logic/asynctoolresultlogic.go#L24-L45)
+- [aiapp/aichat/internal/logic/listasyncresultslogic.go:27-81](file://aiapp/aichat/internal/logic/listasyncresultslogic.go#L27-L81)
 
 #### 服务上下文集成
-- ServiceContext：整合配置、注册表、MCP客户端、异步结果处理器
-- 动态MCP连接：根据配置决定是否启用MCP客户端
+- **更新** ServiceContext：整合配置、注册表、MCP客户端、异步结果处理器
 - **新增** 异步结果处理器：默认使用内存处理器，支持二开扩展
+- **新增** 任务观察者：支持异步任务的进度回调和状态通知
 - 错误降级：MCP连接失败时继续提供基础服务
 
 **章节来源**
@@ -758,8 +719,8 @@ More --> |否| Return
 **章节来源**
 - [aiapp/aigtw/internal/handler/pass/chatcompletionshandler.go:13-30](file://aiapp/aigtw/internal/handler/pass/chatcompletionshandler.go#L13-L30)
 - [aiapp/aigtw/internal/logic/pass/chatcompletionslogic.go:35-41](file://aiapp/aigtw/internal/logic/pass/chatcompletionslogic.go#L35-L41)
-- [aiapp/aigtw/internal/handler/pass/asyncToolCallHandler.go:26-49](file://aiapp/aigtw/internal/handler/pass/asyncToolCallHandler.go#L26-L49)
-- [aiapp/aigtw/internal/handler/pass/asynctoolresulthandler.go:31-50](file://aiapp/aigtw/internal/handler/pass/asynctoolresulthandler.go#L31-L50)
+- [aiapp/aigtw/internal/handler/pass/asyncToolCallHandler.go:16-33](file://aiapp/aigtw/internal/handler/pass/asyncToolCallHandler.go#L16-L33)
+- [aiapp/aigtw/internal/handler/pass/asynctoolresulthandler.go:16-33](file://aiapp/aigtw/internal/handler/pass/asynctoolresulthandler.go#L16-L33)
 
 #### **新增** MCP客户端配置
 - 多服务器连接：支持配置多个MCP服务器
@@ -862,6 +823,12 @@ HTML测试界面提供了完整的异步工具调用测试功能，包括JWT认�
   - Modbus桥接：设备通信功能
   - **更新** 增强的日志配置：Encoding和Path设置
   - **新增** 测试进度工具：演示异步任务进度通知
+- **新增** 增强的AI聊天服务依赖
+  - gRPC框架：流式聊天补全和工具调用
+  - **新增** 混合流式逻辑：支持LLM token和工具进度混合
+  - **新增** 异步工具调用：后台任务执行和进度回调
+  - MCP客户端：增强的进度回调机制
+  - 异步结果处理器：任务状态持久化
 - **新增** 异步工具调用系统依赖
   - gRPC框架：异步工具调用和结果查询
   - 异步结果处理器：任务状态持久化
@@ -885,10 +852,12 @@ HTML测试界面提供了完整的异步工具调用测试功能，包括JWT认�
   - 并发控制：读写锁保护工具列表
   - 日志系统：连接状态和错误记录
   - **新增** 多服务器连接管理：支持多个MCP服务器配置
+  - **新增** 进度回调增强：实时进度通知和任务观察
 - **新增** 工具调用依赖
   - 事件循环：多轮工具调用管理
   - 超时控制：总超时和空闲超时
   - 错误处理：工具调用失败降级
+  - **新增** 混合流式响应：LLM token和工具进度混合
 
 ```mermaid
 graph LR
@@ -909,13 +878,15 @@ AICHAT["AiChat服务"] --> GRPC["gRPC框架"]
 AICHAT --> HTTPC["HTTP客户端"]
 AICHAT --> CFG["配置管理"]
 AICHAT --> PROV["模型提供商"]
-AICHAT --> MCPCLI["MCP客户端"]
+AICHAT --> MCPCLI["MCP客户端<br/>进度回调增强"]
 AICHAT --> ASYNCLOGIC["异步工具调用逻辑"]
 AICHAT --> RESULTLOGIC["异步结果查询逻辑"]
+AICHAT --> LISTLOGIC["异步结果列表逻辑"]
 AICHAT --> ASYNCHANDLER["异步结果处理器"]
 MCPCLI --> MCPSDK["MCP SDK"]
 MCPCLI --> LOCK["读写锁"]
 MCPCLI --> MULTISRV["多服务器连接"]
+MCPCLI --> PROGRESS["进度回调增强"]
 ASYNCHANDLER --> MEMCACHE["内存缓存(go-zero)"]
 ASYNCHANDLER --> RWLOCK["读写锁"]
 ASYNCUI["HTML测试界面"] --> JWT2["JWT认证"]
@@ -928,6 +899,9 @@ AIGTW --> SSEX["SSE写入器"]
 AIGTW --> GRPCCLI["gRPC客户端"]
 AIGTW --> HTML["聊天界面"]
 AIGTW --> ASYNCUI["异步工具测试界面"]
+AICHAT --> STREAMLOGIC["混合流式逻辑"]
+STREAMLOGIC --> TOOLBUF["工具调用缓冲"]
+STREAMLOGIC --> PROGRESSNOTIFY["进度通知"]
 ```
 
 **图表来源**
@@ -969,6 +943,7 @@ AIGTW --> ASYNCUI["异步工具测试界面"]
 - **新增** 异步工具调用性能：内存处理器提供高性能存储，适合小规模部署
 - **新增** 轮询查询优化：建议轮询间隔1-2秒，避免过度查询
 - **新增** 进度回调机制：工具执行进度的实时通知，提升用户体验
+- **新增** 混合流式响应性能：LLM token和工具进度混合输出，减少连接数
 - **更新** MCP服务器日志配置：纯文本编码便于日志分析和收集
 
 ## 故障排查指南
@@ -996,10 +971,12 @@ AIGTW --> ASYNCUI["异步工具测试界面"]
   - 验证工具列表缓存是否正确初始化
   - 查看工具调用参数解析错误
   - **新增** 检查多服务器连接状态和工具名前缀
+  - **新增** 检查进度回调机制是否正常工作
 - **新增** 工具调用循环异常
   - 检查MaxToolRounds配置是否合理
   - 验证工具调用结果是否正确追加到消息历史
   - 查看工具调用超时和错误处理
+  - **新增** 检查混合流式逻辑是否正确处理工具调用
 - **新增** 异步工具调用问题
   - 检查异步结果处理器配置是否正确
   - 验证任务ID格式和查询逻辑
@@ -1015,11 +992,13 @@ AIGTW --> ASYNCUI["异步工具测试界面"]
   - 验证提供商API密钥和端点
   - 查看gRPC错误码和上游错误信息
   - **新增** 验证异步工具调用接口是否正常
+  - **新增** 检查混合流式逻辑是否正确处理工具调用
 - **新增** AIGTW网关问题
   - 确认AiChat服务是否正常启动
   - 检查SSE写入器初始化是否成功
   - 验证聊天界面和异步测试界面静态文件路径
   - **新增** 确认异步工具调用路由是否正确注册
+  - **新增** 检查JWT中间件是否正确配置
 - **更新** MCP服务器配置问题
   - 检查Mode: dev环境标识是否正确
   - 验证Log配置中的Encoding和Path设置
@@ -1043,7 +1022,9 @@ AIGTW --> ASYNCUI["异步工具测试界面"]
 AI应用模块通过四个核心子系统实现了完整的AI服务能力：
 - SSE网关服务提供事件驱动的低延迟通信能力
 - MCP服务器提供标准化的工具调用接口
+- **新增** 增强的AI聊天服务支持流式工具调用功能，能够在同一流中混合LLM token和工具进度通知
 - **新增** 异步工具调用系统实现长时间运行任务的异步执行
+- **新增** AIGTW网关增强提供OpenAI兼容的REST接口和SSE流式响应，新增异步工具调用REST接口
 - **新增** HTML测试界面提供完整的用户交互和测试功能
 - **新增** 内存异步结果处理器提供高性能的任务状态存储
 - **新增** 测试进度工具演示异步任务的进度通知机制
@@ -1092,6 +1073,13 @@ AI应用模块通过四个核心子系统实现了完整的AI服务能力：
   - 返回：AsyncToolResultRes
   - 说明：查询异步任务执行状态和结果
 
+- 异步结果列表查询
+  - 方法：POST
+  - 路径：/aichat.v1.AiChat/ListAsyncResults
+  - 请求体：ListAsyncResultsReq
+  - 返回：ListAsyncResultsResp
+  - 说明：分页查询异步任务列表
+
 - 异步工具调用（AIGTW网关）
   - 方法：POST
   - 路径：/aigtw/v1/async/tool/call
@@ -1104,6 +1092,14 @@ AI应用模块通过四个核心子系统实现了完整的AI服务能力：
   - 路径：/aigtw/v1/async/tool/result/{task_id}
   - 返回：AsyncToolResultResponse
   - 认证：需要JWT令牌
+
+#### **新增** 流式工具调用API
+- 流式聊天补全
+  - 方法：POST
+  - 路径：/aichat.v1.AiChat/ChatCompletionStream
+  - 请求体：ChatCompletionReq
+  - 返回：ChatCompletionStreamChunk（Server-Side Stream）
+  - 说明：支持混合流式响应，包含LLM token和工具进度通知
 
 #### **新增** HTML测试界面API
 - 异步工具调用测试页面
@@ -1124,6 +1120,13 @@ AI应用模块通过四个核心子系统实现了完整的AI服务能力：
   - 请求体：工具参数JSON
   - 返回：工具执行结果
 
+- 带进度的工具调用
+  - 方法：POST
+  - 路径：/mcp/v1/tools/{name}/progress
+  - 请求体：工具参数JSON
+  - 返回：工具执行结果
+  - 说明：支持实时进度通知
+
 #### **新增** AiChat服务API
 - 健康检查
   - 方法：POST
@@ -1142,6 +1145,7 @@ AI应用模块通过四个核心子系统实现了完整的AI服务能力：
   - 路径：/aichat.v1.AiChat/ChatCompletionStream
   - 请求体：ChatCompletionReq
   - 返回：ChatCompletionStreamChunk（Server-Side Stream）
+  - 说明：支持混合流式响应
 
 - 模型列表
   - 方法：POST
@@ -1186,6 +1190,7 @@ AI应用模块通过四个核心子系统实现了完整的AI服务能力：
 - **新增** 配置MCP服务器端点，实现智能工具调用功能
 - **新增** 使用异步工具调用API，提交长时间运行的任务并轮询查询结果
 - **新增** 使用HTML测试界面进行异步工具调用测试，支持JWT认证和进度显示
+- **新增** 使用流式工具调用API，实现实时进度通知和混合响应
 - **更新** 使用新的/ai/v1前缀进行聊天对话
 
 **章节来源**
@@ -1216,6 +1221,10 @@ AI应用模块通过四个核心子系统实现了完整的AI服务能力：
   - 轮询查询间隔建议1-2秒，避免过度查询
   - 进度回调机制需要MCP工具支持
   - HTML测试界面需要正确的API端点配置
+- **新增** 流式工具调用部署
+  - 混合流式逻辑需要合理的超时配置
+  - 工具调用缓冲需要适当的内存管理
+  - 进度回调需要稳定的MCP服务器连接
 - **新增** MCP服务器部署
   - 支持Modbus设备桥接配置
   - CORS跨域配置管理
@@ -1256,6 +1265,11 @@ AI应用模块通过四个核心子系统实现了完整的AI服务能力：
   - 实现任务超时和重试机制
   - 监控异步任务的执行状态和性能
   - 使用内存处理器时注意过期时间配置
+- **新增** 流式工具调用
+  - 合理配置混合流式逻辑的超时参数
+  - 实现工具调用缓冲的内存管理
+  - 监控进度回调的实时性要求
+  - 避免过多的工具调用导致响应延迟
 - **新增** HTML测试界面
   - 实施正确的JWT令牌管理
   - 处理网络错误和API错误
@@ -1270,21 +1284,25 @@ AI应用模块通过四个核心子系统实现了完整的AI服务能力：
   - 工具列表缓存失效策略，支持动态刷新
   - 并发访问控制，避免竞态条件
   - **新增** 多服务器连接管理，避免工具名冲突
+  - **新增** 进度回调增强，支持实时进度通知
 - **新增** 工具调用
   - 最大工具轮次限制，防止无限循环
   - 超时控制与错误处理，提升系统稳定性
   - 工具调用结果验证，确保数据完整性
+  - **新增** 混合流式响应的正确处理
 - **新增** AiChat服务
   - 严格验证模型配置和提供商密钥
   - 实现合理的超时和重试机制
   - 记录详细的日志和监控指标
   - **新增** 异步工具调用接口的错误处理
+  - **新增** 流式工具调用功能的性能优化
 - **新增** AIGTW网关
   - 配置适当的CORS策略
   - 实现错误处理和降级机制
   - 保护静态文件访问权限
   - 实施JWT中间件的性能优化
   - **新增** 异步工具调用接口的路由配置
+  - **新增** 流式工具调用接口的SSE支持
 - **更新** MCP服务器
   - 开发环境使用Mode: dev标识
   - 配置纯文本日志编码和指定日志路径
@@ -1296,3 +1314,4 @@ AI应用模块通过四个核心子系统实现了完整的AI服务能力：
   - 实现服务间的依赖管理和故障隔离
   - **新增** 确保JWT认证与MCP工具调用的安全一致性
   - **新增** 异步工具调用系统的整体性能优化
+  - **新增** 流式工具调用功能的端到端测试
