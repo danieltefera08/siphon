@@ -2,8 +2,9 @@ package logic
 
 import (
 	"context"
-	"github.com/jinzhu/copier"
 	"siphon/common/copierx"
+
+	"github.com/jinzhu/copier"
 
 	"siphon/app/trigger/internal/svc"
 	"siphon/app/trigger/trigger"
@@ -35,7 +36,7 @@ func (l *GetQueueInfoLogic) GetQueueInfo(in *trigger.GetQueueInfoReq) (*trigger.
 	if err != nil {
 		return nil, err
 	}
-	queueInfo := trigger.PbQueueInfo{}
+	queueInfo := trigger.QueueInfoPb{}
 	copier.CopyWithOption(&queueInfo, qinfo, copierx.Option)
 	return &trigger.GetQueueInfoRes{
 		QueueInfo: &queueInfo,
