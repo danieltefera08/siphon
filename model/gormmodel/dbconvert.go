@@ -1,4 +1,4 @@
-package model
+package gormmodel
 
 import "siphon/common/modbusx"
 
