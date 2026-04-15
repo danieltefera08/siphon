@@ -6,10 +6,11 @@ package solo
 import (
 	"net/http"
 
-	"github.com/zeromicro/go-zero/rest/httpx"
 	"siphon/aiapp/aigtw/internal/logic/solo"
 	"siphon/aiapp/aigtw/internal/svc"
 	"siphon/aiapp/aigtw/internal/types"
+
+	"github.com/zeromicro/go-zero/rest/httpx"
 )
 
 // 中断恢复
@@ -20,6 +21,9 @@ func ResumeHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 			httpx.ErrorCtx(r.Context(), w, err)
 			return
 		}
+
+		// 从路径参数获取 interrupt_id
+		req.InterruptId = r.PathValue("id")
 
 		l := solo.NewResumeLogic(r.Context(), svcCtx)
 		resp, err := l.Resume(&req)

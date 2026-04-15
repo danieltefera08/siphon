@@ -6,10 +6,10 @@ import (
 	"fmt"
 	"io"
 	"time"
+	"siphon/common/einox/a2ui"
 
 	"siphon/aiapp/aisolo/aisolo"
 	"siphon/aiapp/aisolo/internal/svc"
-	"siphon/common/a2ui"
 	"siphon/common/einox/memory"
 
 	"github.com/cloudwego/eino/schema"
@@ -144,7 +144,7 @@ func (l *AskStreamLogic) AskStream(in *aisolo.AskReq, streamSvc aisolo.AiSolo_As
 	runner := einoAgent.Runner()
 	events := runner.Run(l.ctx, messages)
 
-	lastContent, interruptID, err := a2ui.StreamToWriter(writer, sessionID, history, events)
+	lastContent, interruptID, _, err := a2ui.StreamToWriter(writer, sessionID, history, events)
 	if err != nil && !errors.Is(err, io.EOF) {
 		l.Logger.Errorf("stream to writer: %v", err)
 		return status.Error(codes.Internal, fmt.Sprintf("agent execution failed: %v", err))
@@ -158,7 +158,6 @@ func (l *AskStreamLogic) AskStream(in *aisolo.AskReq, streamSvc aisolo.AiSolo_As
 				InterruptID: interruptID,
 				Description: "approval required",
 				Type:        a2ui.InterruptTypeApproval,
-				Required:    true,
 			},
 		}
 		if err := l.emitMessage(writer, interruptMsg); err != nil {
