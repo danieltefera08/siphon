@@ -7,7 +7,9 @@ import (
 	"github.com/zeromicro/go-zero/core/logx"
 
 	"siphon/aiapp/aisolo/aisolo"
+	"siphon/aiapp/aisolo/internal/sessionworkdir"
 	"siphon/aiapp/aisolo/internal/svc"
+	"siphon/aiapp/aisolo/internal/uilang"
 )
 
 type CreateSessionLogic struct {
@@ -30,8 +32,14 @@ func (l *CreateSessionLogic) CreateSession(in *aisolo.CreateSessionReq) (*aisolo
 		return nil, errors.New("user_id is required")
 	}
 	sess := newSession(in.UserId, in.Title, in.Mode)
+	if v := uilang.Normalize(in.GetUiLang()); v != "" {
+		sess.UILang = v
+	}
 	if err := l.svcCtx.Sessions.CreateSession(l.ctx, sess); err != nil {
 		return nil, err
+	}
+	if err := sessionworkdir.EnsureSession(l.svcCtx.Config, sess.ID); err != nil {
+		l.Errorf("session workspace: %v", err)
 	}
 	return &aisolo.CreateSessionResp{Session: toProtoSession(sess)}, nil
 }
