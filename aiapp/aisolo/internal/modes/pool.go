@@ -6,6 +6,7 @@ import (
 	"sync"
 
 	"siphon/aiapp/aisolo/aisolo"
+	"siphon/aiapp/aisolo/modeweb"
 	einoxagent "siphon/common/einox/agent"
 )
 
@@ -60,6 +61,13 @@ func (p *Pool) Invalidate(mode aisolo.AgentMode) {
 	p.mu.Lock()
 	defer p.mu.Unlock()
 	delete(p.cache, mode)
+}
+
+// InvalidateWorkflowModes 清空全部 Workflow 模式缓存（与 Invalidate 组合使用）。
+func (p *Pool) InvalidateWorkflowModes() {
+	for _, m := range modeweb.WorkflowAgentModes() {
+		p.Invalidate(m)
+	}
 }
 
 // Cleanup 全量清空缓存。

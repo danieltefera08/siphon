@@ -11,6 +11,7 @@ import (
 	"siphon/aiapp/aigtw/internal/svc"
 	"siphon/aiapp/aigtw/internal/types"
 	"siphon/aiapp/aisolo/aisolo"
+	"siphon/aiapp/aisolo/modeweb"
 	"siphon/common/ctxdata"
 
 	"github.com/zeromicro/go-zero/core/logx"
@@ -45,7 +46,7 @@ func (l *ChatLogic) Chat(req *types.SoloChatRequest, w io.Writer) error {
 		SessionId: req.SessionId,
 		UserId:    userID,
 		Message:   req.Message,
-		Mode:      parseMode(req.Mode),
+		Mode:      modeweb.Parse(req.Mode),
 		Meta:      req.Meta,
 	})
 	if err != nil {
