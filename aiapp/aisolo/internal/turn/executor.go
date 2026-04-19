@@ -34,6 +34,7 @@ import (
 	"siphon/aiapp/aisolo/internal/uilang"
 	"siphon/aiapp/aisolo/modeweb"
 	"siphon/common/einox/fsrestrict"
+	einoxkb "siphon/common/einox/knowledge"
 	"siphon/common/einox/memory"
 	"siphon/common/einox/metrics"
 	mw "siphon/common/einox/middleware"
@@ -177,6 +178,7 @@ func (e *Executor) Ask(ctx context.Context, em *protocol.Emitter, in AskInput) e
 		}
 	}
 	ctx = fsrestrict.WithSessionID(ctx, in.SessionID)
+	ctx = einoxkb.WithAgentTurn(ctx, in.UserID, sess.KnowledgeBaseID)
 
 	_ = em.TurnStart(protocol.TurnStartData{UserMessage: userContent})
 
@@ -280,6 +282,7 @@ func (e *Executor) Resume(ctx context.Context, em *protocol.Emitter, in ResumeIn
 		}
 	}
 	ctx = fsrestrict.WithSessionID(ctx, in.SessionID)
+	ctx = einoxkb.WithAgentTurn(ctx, in.UserID, sess.KnowledgeBaseID)
 
 	sess.Status = aisolo.SessionStatus_SESSION_STATUS_RUNNING
 	sess.UpdatedAt = time.Now()
