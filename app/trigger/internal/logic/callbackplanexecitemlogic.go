@@ -11,6 +11,7 @@ import (
 	"siphon/app/trigger/internal/execdelay"
 	"siphon/app/trigger/internal/planscope"
 	"siphon/app/trigger/internal/svc"
+	"siphon/app/trigger/internal/triggerutil"
 	"siphon/app/trigger/trigger"
 	"siphon/facade/streamevent/streamevent"
 	"siphon/model"
@@ -64,6 +65,11 @@ func (l *CallbackPlanExecItemLogic) CallbackPlanExecItem(in *trigger.CallbackPla
 	}
 	lockKey := fmt.Sprintf("trigger:lock:plan:exec:%s", execItem.ExecId)
 	lock := redis.NewRedisLock(l.svcCtx.Redis, lockKey)
+	timeoutMs := execItem.RequestTimeout
+	if timeoutMs == 0 {
+		timeoutMs = l.svcCtx.Config.StreamEventConf.Timeout
+	}
+	lock.SetExpire(triggerutil.RedisLockExpireSeconds(timeoutMs))
 	b, lockErr := lock.AcquireCtx(l.ctx)
 	if lockErr != nil {
 		planscope.ExecCallback(execItem).Logger(l.ctx).Errorf("RPC 执行回调：获取 Redis 分布式锁失败: %v", lockErr)
