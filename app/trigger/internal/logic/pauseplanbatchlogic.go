@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"time"
 
+	"siphon/app/trigger/internal/planscope"
 	"siphon/app/trigger/internal/svc"
 	"siphon/app/trigger/trigger"
 	"siphon/common/tool"
@@ -92,5 +93,6 @@ func (l *PausePlanBatchLogic) PausePlanBatch(in *trigger.PausePlanBatchReq) (*tr
 		return &trigger.PausePlanBatchRes{}, nil
 	}
 
+	l.Infof("%s 暂停批次：事务已提交", planscope.BatchScope(plan, planBatch))
 	return &trigger.PausePlanBatchRes{}, nil
 }

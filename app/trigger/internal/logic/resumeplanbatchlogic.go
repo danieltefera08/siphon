@@ -3,6 +3,7 @@ package logic
 import (
 	"context"
 	"database/sql"
+	"siphon/app/trigger/internal/planscope"
 	"siphon/app/trigger/internal/svc"
 	"siphon/app/trigger/trigger"
 	"siphon/common/tool"
@@ -102,5 +103,6 @@ func (l *ResumePlanBatchLogic) ResumePlanBatch(in *trigger.ResumePlanBatchReq) (
 		return &trigger.ResumePlanBatchRes{}, nil
 	}
 
+	l.Infof("%s 恢复批次：事务已提交", planscope.BatchScope(plan, planBatch))
 	return &trigger.ResumePlanBatchRes{}, nil
 }

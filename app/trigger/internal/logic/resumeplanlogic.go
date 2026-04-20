@@ -7,6 +7,7 @@ import (
 	"siphon/common/tool"
 	"siphon/model"
 
+	"siphon/app/trigger/internal/planscope"
 	"siphon/app/trigger/internal/svc"
 	"siphon/app/trigger/trigger"
 
@@ -96,5 +97,6 @@ func (l *ResumePlanLogic) ResumePlan(in *trigger.ResumePlanReq) (*trigger.Resume
 		return nil, err
 	}
 
+	l.Infof("%s 恢复计划：事务已提交", planscope.PlanScope(plan))
 	return &trigger.ResumePlanRes{}, nil
 }

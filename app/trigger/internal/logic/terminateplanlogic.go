@@ -6,6 +6,7 @@ import (
 	"time"
 	"siphon/facade/streamevent/streamevent"
 
+	"siphon/app/trigger/internal/planscope"
 	"siphon/app/trigger/internal/svc"
 	"siphon/app/trigger/trigger"
 	"siphon/common/tool"
@@ -103,5 +104,6 @@ func (l *TerminatePlanLogic) TerminatePlan(in *trigger.TerminatePlanReq) (*trigg
 	}
 	l.svcCtx.StreamEventCli.NotifyPlanEvent(l.ctx, &planPlanReq)
 
+	l.Infof("%s 终止计划：事务已提交", planscope.PlanScope(plan))
 	return &trigger.TerminatePlanRes{}, nil
 }
