@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"time"
 
+	"siphon/app/trigger/internal/planscope"
 	"siphon/app/trigger/internal/svc"
 	"siphon/app/trigger/trigger"
 	"siphon/common/tool"
@@ -87,12 +88,12 @@ func (l *PausePlanLogic) PausePlan(in *trigger.PausePlanReq) (*trigger.PausePlan
 			return transErr
 		}
 		return nil
-		return nil
 	})
 
 	if err != nil {
-		return &trigger.PausePlanRes{}, nil
+		return nil, err
 	}
 
+	planscope.PlanScope(plan).Logger(l.ctx).Info("RPC 暂停计划：计划状态已更新，事务已提交")
 	return &trigger.PausePlanRes{}, nil
 }

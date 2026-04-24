@@ -7,6 +7,7 @@ import (
 	"siphon/common/tool"
 	"siphon/model"
 
+	"siphon/app/trigger/internal/planscope"
 	"siphon/app/trigger/internal/svc"
 	"siphon/app/trigger/trigger"
 
@@ -86,5 +87,6 @@ func (l *ResumePlanExecItemLogic) ResumePlanExecItem(in *trigger.ResumePlanExecI
 		return nil, err
 	}
 
+	planscope.ExecScope(execItem).Logger(l.ctx).Info("RPC 恢复执行项：执行项状态已更新，事务已提交")
 	return &trigger.ResumePlanExecItemRes{}, nil
 }
