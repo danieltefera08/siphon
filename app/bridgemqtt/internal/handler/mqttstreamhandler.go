@@ -4,6 +4,7 @@ import (
 	"context"
 	"time"
 
+	"siphon/app/bridgemqtt/internal/config"
 	"siphon/common/mqttx"
 	"siphon/common/tool"
 	"siphon/facade/streamevent/streamevent"
@@ -21,13 +22,13 @@ type MqttStreamHandler struct {
 	streamEventCli streamevent.StreamEventClient
 	socketPushCli  socketpush.SocketPushClient
 	taskRunner     *threading.TaskRunner
-	eventMapping   []mqttx.EventMapping
+	eventMapping   []config.EventMapping
 	defaultEvent   string
 	logManager     *mqttx.TopicLogManager
 }
 
 // NewMqttStreamHandler 创建 MQTT 流处理器
-func NewMqttStreamHandler(clientID string, streamEventCli streamevent.StreamEventClient, socketPushCli socketpush.SocketPushClient, eventMapping []mqttx.EventMapping, defaultEvent string, logCfg mqttx.TopicLogConfig) *MqttStreamHandler {
+func NewMqttStreamHandler(clientID string, streamEventCli streamevent.StreamEventClient, socketPushCli socketpush.SocketPushClient, eventMapping []config.EventMapping, defaultEvent string, logCfg mqttx.TopicLogConfig) *MqttStreamHandler {
 	logManager := mqttx.NewTopicLogManager()
 	logManager.LoadFromConfig(logCfg)
 
