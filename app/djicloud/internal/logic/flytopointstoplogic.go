@@ -5,6 +5,7 @@ import (
 
 	"siphon/app/djicloud/djicloud"
 	"siphon/app/djicloud/internal/svc"
+	"siphon/common/djisdk"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -23,8 +24,10 @@ func NewFlyToPointStopLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Fl
 	}
 }
 
-func (l *FlyToPointStopLogic) FlyToPointStop(in *djicloud.DeviceSnReq) (*djicloud.CommonRes, error) {
-	tid, err := l.svcCtx.DjiClient.FlyToPointStop(l.ctx, in.DeviceSn)
+func (l *FlyToPointStopLogic) FlyToPointStop(in *djicloud.FlyToPointStopReq) (*djicloud.CommonRes, error) {
+	tid, err := l.svcCtx.DjiClient.FlyToPointStop(l.ctx, in.GetDeviceSn(), &djisdk.FlyToPointStopData{
+		FlyToID: in.GetFlyToId(),
+	})
 	if err != nil {
 		l.Errorf("[drc] fly to point stop failed: %v", err)
 		return errRes(tid, err), nil
