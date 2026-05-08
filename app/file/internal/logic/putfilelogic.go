@@ -6,6 +6,7 @@ import (
 
 	"siphon/app/file/file"
 	"siphon/app/file/internal/svc"
+	"siphon/common/filex"
 	"siphon/common/imagex"
 	"siphon/common/ossx"
 
@@ -56,7 +57,7 @@ func (l *PutFileLogic) PutFile(in *file.PutFileReq) (*file.PutFileRes, error) {
 	var pbFile file.File
 	copier.Copy(&pbFile, ossFile) // nolint:errcheck
 
-	if isImageContentType(contentType) {
+	if filex.IsImageContentType(contentType) {
 		if exifMeta, err := imagex.ExtractImageMeta(in.Path); err == nil {
 			var meta file.ImageMeta
 			copier.Copy(&meta, &exifMeta) // nolint:errcheck

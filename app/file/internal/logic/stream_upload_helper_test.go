@@ -22,6 +22,7 @@ import (
 	"siphon/app/file/file"
 	"siphon/app/file/internal/config"
 	"siphon/app/file/internal/svc"
+	"siphon/common/filex"
 	"siphon/common/netx"
 	"siphon/common/ossx"
 )
@@ -198,7 +199,7 @@ func TestProcessUploadResult_ImageExtractsEXIF(t *testing.T) {
 		"t1", "bucket", "a.png", false, nil,
 	)
 
-	if !isImageContentType(result.ContentType) {
+	if !filex.IsImageContentType(result.ContentType) {
 		t.Fatal("PNG should be detected as image")
 	}
 	if pbFile.ThumbLink != "" || pbFile.ThumbName != "" {
