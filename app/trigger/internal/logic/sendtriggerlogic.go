@@ -3,14 +3,14 @@ package logic
 import (
 	"context"
 	"siphon/app/trigger/internal/svc"
+	"siphon/app/trigger/internal/taskpayload"
 	"siphon/app/trigger/trigger"
 	"siphon/common/asynqx"
-	"siphon/common/msgbody"
 
 	"github.com/hibiken/asynq"
 	"github.com/zeromicro/go-zero/core/trace"
-	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/propagation"
+	tracex "siphon/common/trace"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -35,9 +35,9 @@ func (l *SendTriggerLogic) SendTrigger(in *trigger.SendTriggerReq) (*trigger.Sen
 	defer span.End()
 
 	carrier := &propagation.HeaderCarrier{}
-	otel.GetTextMapPropagator().Inject(spanCtx, carrier)
+	tracex.Inject(spanCtx, carrier)
 
-	msg := &msgbody.MsgBody{
+	msg := &taskpayload.HttpPayload{
 		MsgId:   in.MsgId,
 		Carrier: carrier,
 		Msg:     in.Body,
