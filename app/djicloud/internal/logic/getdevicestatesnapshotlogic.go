@@ -6,10 +6,10 @@ import (
 	"siphon/app/djicloud/djicloud"
 	"siphon/app/djicloud/internal/svc"
 	"siphon/app/djicloud/model/gormmodel"
+	"siphon/common/tool"
+	"siphon/third_party/extproto"
 
 	"github.com/zeromicro/go-zero/core/logx"
-	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/status"
 )
 
 type GetDeviceStateSnapshotLogic struct {
@@ -30,7 +30,7 @@ func NewGetDeviceStateSnapshotLogic(ctx context.Context, svcCtx *svc.ServiceCont
 func (l *GetDeviceStateSnapshotLogic) GetDeviceStateSnapshot(in *djicloud.GetDeviceStateSnapshotReq) (*djicloud.DeviceStateSnapshotRes, error) {
 	var item gormmodel.DjiDeviceStateSnapshot
 	if err := l.svcCtx.DB.WithContext(l.ctx).Where("device_sn = ?", in.DeviceSn).First(&item).Error; err != nil {
-		return nil, status.Error(codes.NotFound, err.Error())
+		return nil, tool.NewErrorByPbCodeWrap(extproto.Code__1_02_RECORD_NOT_EXIST, err, "查询设备State快照失败")
 	}
 	return &djicloud.DeviceStateSnapshotRes{Data: toStateSnapshot(&item)}, nil
 }

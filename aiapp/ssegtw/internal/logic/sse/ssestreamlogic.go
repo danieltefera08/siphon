@@ -13,6 +13,7 @@ import (
 	"siphon/aiapp/ssegtw/internal/types"
 	"siphon/common/ssex"
 	"siphon/common/tool"
+	"siphon/third_party/extproto"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -53,7 +54,7 @@ func (l *SseStreamLogic) SseStream(req *types.SSEStreamRequest) error {
 	// 1. 注册完成信号（PendingRegistry）
 	donePromise, err := l.svcCtx.PendingReg.Register(channel, 60*time.Second)
 	if err != nil {
-		return fmt.Errorf("register pending failed: %w", err)
+		return tool.NewErrorByPbCodeWrap(extproto.Code__1_06_THIRD_PARTY, err, "register pending failed")
 	}
 
 	// 2. 订阅事件流（EventEmitter）

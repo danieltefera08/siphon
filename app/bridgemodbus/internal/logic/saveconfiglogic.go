@@ -3,16 +3,14 @@ package logic
 import (
 	"context"
 
+	"siphon/app/bridgemodbus/bridgemodbus"
+	"siphon/app/bridgemodbus/internal/svc"
 	"siphon/common/gormx"
 	"siphon/model/gormmodel"
 
 	"github.com/pkg/errors"
-	"gorm.io/gorm"
-
-	"siphon/app/bridgemodbus/bridgemodbus"
-	"siphon/app/bridgemodbus/internal/svc"
-
 	"github.com/zeromicro/go-zero/core/logx"
+	"gorm.io/gorm"
 )
 
 type SaveConfigLogic struct {

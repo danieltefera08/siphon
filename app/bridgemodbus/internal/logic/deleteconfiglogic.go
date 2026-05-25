@@ -2,7 +2,9 @@ package logic
 
 import (
 	"context"
+	"siphon/common/tool"
 	"siphon/model/gormmodel"
+	"siphon/third_party/extproto"
 
 	"siphon/app/bridgemodbus/bridgemodbus"
 	"siphon/app/bridgemodbus/internal/svc"
@@ -29,7 +31,7 @@ func (l *DeleteConfigLogic) DeleteConfig(in *bridgemodbus.DeleteConfigReq) (*bri
 	err := l.svcCtx.DB.WithContext(l.ctx).Delete(&gormmodel.ModbusSlaveConfig{}, in.Ids).Error
 	if err != nil {
 		logx.Errorf("Batch delete failed, ids=%v, err=%v", in.Ids, err)
-		return nil, err
+		return nil, tool.NewErrorByPbCode(extproto.Code__1_02_DB, "批量删除配置失败")
 	}
 	return &bridgemodbus.DeleteConfigRes{}, nil
 }
