@@ -12,6 +12,8 @@ import (
 	"siphon/app/djicloud/internal/server"
 	"siphon/app/djicloud/internal/svc"
 
+	_ "siphon/common/carbonx"
+
 	"github.com/duke-git/lancet/v2/strutil"
 	"github.com/nacos-group/nacos-sdk-go/v2/common/constant"
 	"github.com/zeromicro/go-zero/core/conf"
