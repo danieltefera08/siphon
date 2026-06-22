@@ -4,6 +4,7 @@ import (
 	"flag"
 	"fmt"
 	interceptor "siphon/common/Interceptor/rpcserver"
+	"siphon/common/gisx/geos"
 	"siphon/common/nacosx"
 	"siphon/common/tool"
 
@@ -32,6 +33,9 @@ func main() {
 
 	// Print Go version
 	tool.PrintGoVersion()
+
+	// Print GEOS version
+	fmt.Printf("GEOS Version: %s\n", geos.GEOSVersionString())
 
 	ctx := svc.NewServiceContext(c)
 
