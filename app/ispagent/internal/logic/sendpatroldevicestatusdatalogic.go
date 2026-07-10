@@ -3,6 +3,7 @@ package logic
 import (
 	"context"
 
+	ispclient "siphon/app/ispagent/internal/isp"
 	"siphon/app/ispagent/internal/svc"
 	"siphon/app/ispagent/ispagent"
 	"siphon/common/isp"
@@ -25,9 +26,8 @@ func NewSendPatrolDeviceStatusDataLogic(ctx context.Context, svcCtx *svc.Service
 }
 
 func (l *SendPatrolDeviceStatusDataLogic) SendPatrolDeviceStatusData(in *ispagent.SendPatrolDeviceStatusDataReq) (*ispagent.CommandRes, error) {
-	msg, err := l.svcCtx.IspClient.Execute(l.ctx, isp.TypePatrolDeviceStatusData, isp.CommandReport, in.GetCode(), patrolDeviceStatusDataToItems(in.GetItems()))
-	if err != nil {
+	if err := l.svcCtx.IspClient.CacheReport(l.ctx, ispclient.ReportCategoryPatrolDeviceStatusData, in.GetCode(), patrolDeviceStatusDataToItems(in.GetItems())); err != nil {
 		return nil, err
 	}
-	return commandResponse(msg), nil
+	return &ispagent.CommandRes{Success: true, Code: isp.StatusSuccess}, nil
 }
