@@ -6,7 +6,6 @@ import (
 	ispclient "siphon/app/ispagent/internal/isp"
 	"siphon/app/ispagent/internal/svc"
 	"siphon/app/ispagent/ispagent"
-	"siphon/common/isp"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -25,9 +24,9 @@ func NewSendPatrolDeviceCoordinatesLogic(ctx context.Context, svcCtx *svc.Servic
 	}
 }
 
-func (l *SendPatrolDeviceCoordinatesLogic) SendPatrolDeviceCoordinates(in *ispagent.SendPatrolDeviceCoordinatesReq) (*ispagent.CommandRes, error) {
+func (l *SendPatrolDeviceCoordinatesLogic) SendPatrolDeviceCoordinates(in *ispagent.SendPatrolDeviceCoordinatesReq) (*ispagent.SendPatrolDeviceCoordinatesRes, error) {
 	if err := l.svcCtx.IspClient.CacheReport(l.ctx, ispclient.ReportCategoryPatrolDeviceCoordinates, in.GetCode(), patrolDeviceCoordinatesToItems(in.GetItems())); err != nil {
 		return nil, err
 	}
-	return &ispagent.CommandRes{Success: true, Code: isp.StatusSuccess}, nil
+	return &ispagent.SendPatrolDeviceCoordinatesRes{}, nil
 }
