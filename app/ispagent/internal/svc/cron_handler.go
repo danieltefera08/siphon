@@ -5,15 +5,14 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/zeromicro/go-zero/core/logx"
+	"github.com/zeromicro/go-zero/core/threading"
 	ctask "siphon/app/ispagent/internal/crontask"
 	"siphon/app/ispagent/internal/handler"
 	"siphon/app/ispagent/model/gormmodel"
 	"siphon/common/crontask"
 	"siphon/common/isp"
-
-	"github.com/dromara/carbon/v2"
-	"github.com/zeromicro/go-zero/core/logx"
-	"github.com/zeromicro/go-zero/core/threading"
+	"siphon/common/tool"
 )
 
 func NewCronHandler(svcCtx *ServiceContext) crontask.Handler {
@@ -24,11 +23,11 @@ func NewCronHandler(svcCtx *ServiceContext) crontask.Handler {
 			return nil
 		}
 
-		nextTime := carbon.CreateFromStdTime(task.NextRun)
+		nextTime := tool.CarbonFromTimeStartOfSecond(task.NextRun)
 		planStartTime := nextTime.StdTime()
 		planStartTimeText := nextTime.ToDateTimeString()
 		taskPatrolledID := fmt.Sprintf("%s_%s_%s",
-			fields.SubstationCode, task.TaskCode, nextTime.Format("YmdHis"))
+			fields.SubstationCode, task.TaskCode, nextTime.ToShortDateTimeString())
 
 		logx.WithContext(ctx).Infof("[ispagent] cron 触发 task_code=%s patrol_id=%s plan=%s",
 			task.TaskCode, taskPatrolledID, planStartTimeText)
