@@ -3,7 +3,7 @@ package logic
 import (
 	"context"
 
-	ispclient "siphon/app/ispagent/internal/isp"
+	"siphon/app/ispagent/internal/ispclient"
 	"siphon/app/ispagent/internal/svc"
 	"siphon/app/ispagent/ispagent"
 	"siphon/common/isp"
