@@ -5,6 +5,8 @@ import (
 
 	"siphon/app/djicloud/djicloud"
 	"siphon/app/djicloud/internal/svc"
+	"siphon/common/tool"
+	"siphon/third_party/extproto"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -27,15 +29,12 @@ func (l *CustomDataTransmissionToPsdkLogic) CustomDataTransmissionToPsdk(in *dji
 	l.Infof("[psdk-transmit] sn=%s value_len=%d", in.DeviceSn, len(in.Value))
 
 	if len(in.Value) >= 256 {
-		return &djicloud.CommonRes{
-			Code:    -1,
-			Message: "value length must be less than 256",
-		}, nil
+		return nil, tool.NewErrorByPbCode(extproto.Code__1_01_PARAM_INVALID, "value 长度必须小于 256")
 	}
 
 	tid, err := l.svcCtx.DjiClient.CustomDataTransmissionToPsdk(l.ctx, in.DeviceSn, in.Value)
 	if err != nil {
-		return errRes(tid, err), nil
+		return commandRes(tid, err)
 	}
 
 	return okRes(tid), nil
