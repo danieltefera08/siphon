@@ -2,7 +2,7 @@ package user
 
 import (
 	"context"
-	"siphon/common/ctxdata"
+	"siphon/common/authctx"
 	"siphon/common/tool"
 	"siphon/third_party/extproto"
 	"siphon/zerorpc/zerorpc"
@@ -31,7 +31,7 @@ func NewGetCurrentUserLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Ge
 }
 
 func (l *GetCurrentUserLogic) GetCurrentUser(req *types.GetCurrentUserRequest) (resp *types.GetCurrentUserReply, err error) {
-	userId := ctxdata.GetUserId(l.ctx)
+	userId := authctx.GetUserId(l.ctx)
 	if len(userId) > 0 {
 		res, err := l.svcCtx.ZeroRpcCli.GetUserInfo(l.ctx, &zerorpc.GetUserInfoReq{
 			Id: userId,

@@ -7,8 +7,8 @@ import (
 	"siphon/app/file/internal/config"
 	"siphon/app/file/internal/server"
 	"siphon/app/file/internal/svc"
-	interceptor "siphon/common/Interceptor/rpcserver"
 	_ "siphon/common/carbonx"
+	"siphon/common/grpcx"
 	"siphon/common/nacosx"
 	"siphon/common/tool"
 
@@ -62,7 +62,7 @@ func main() {
 		opts := nacosx.NewNacosConfig(c.NacosConfig.ServiceName, c.ListenOn, sc, cc, nacosx.WithMetadata(m))
 		_ = nacosx.RegisterService(opts)
 	}
-	s.AddUnaryInterceptors(interceptor.LoggerInterceptor)
+	s.AddUnaryInterceptors(grpcx.LoggerInterceptor)
 	defer s.Stop()
 	logx.AddGlobalFields(logx.Field("app", c.Name))
 

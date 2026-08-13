@@ -7,11 +7,11 @@ import (
 	"siphon/app/trigger/internal/cronjob"
 	"siphon/app/trigger/internal/svc"
 	"siphon/app/trigger/trigger"
-	"siphon/common/crontask"
+	"siphon/common/carbonx"
+	"siphon/common/rrulex"
 	"siphon/common/tool"
 	"siphon/third_party/extproto"
 
-	"github.com/dromara/carbon/v2"
 	"github.com/teambition/rrule-go"
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -48,9 +48,9 @@ func (l *CalcPlanTaskDateLogic) CalcPlanTaskDate(in *trigger.CalcPlanTaskDateReq
 	dates := set.All()
 	var planDates []string
 	for _, date := range dates {
-		planDates = append(planDates, carbon.NewCarbon(date).ToDateTimeString())
+		planDates = append(planDates, carbonx.FormatDateTime(date))
 	}
-	scheduleDescription, err := crontask.DescribeRRule(schedule.RRuleStr)
+	scheduleDescription, err := rrulex.Describe(schedule.RRuleStr)
 	if err != nil {
 		return nil, tool.NewErrorByPbCodeWrap(extproto.Code__1_01_PARAM_INVALID, err, "生成计划规则描述失败")
 	}

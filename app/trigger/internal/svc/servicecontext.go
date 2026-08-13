@@ -7,10 +7,10 @@ import (
 	"siphon/app/trigger/internal/config"
 	"siphon/app/trigger/internal/cronjob"
 	"siphon/app/trigger/model/gormmodel"
-	interceptor "siphon/common/Interceptor/rpcclient"
 	"siphon/common/asynqx"
 	commoncrontask "siphon/common/crontask"
 	"siphon/common/gormx"
+	"siphon/common/grpcx"
 	"siphon/common/holiday"
 	"siphon/common/netx"
 	"siphon/common/tool"
@@ -81,7 +81,7 @@ func NewServiceContext(c config.Config) *ServiceContext {
 
 	httpcSvc := netx.NewHTTPCService("trigger-httpc")
 	streamEventCli := streamevent.NewStreamEventClient(zrpc.MustNewClient(c.StreamEventConf,
-		zrpc.WithUnaryClientInterceptor(interceptor.UnaryMetadataInterceptor),
+		zrpc.WithUnaryClientInterceptor(grpcx.UnaryMetadataInterceptor),
 		// 添加最大消息配置
 		zrpc.WithDialOption(grpc.WithDefaultCallOptions(
 			grpc.MaxCallSendMsgSize(math.MaxInt32), // 发送最大2GB

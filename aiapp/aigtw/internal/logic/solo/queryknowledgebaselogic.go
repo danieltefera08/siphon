@@ -5,7 +5,7 @@ import (
 
 	"siphon/aiapp/aigtw/internal/svc"
 	"siphon/aiapp/aigtw/internal/types"
-	"siphon/common/ctxdata"
+	"siphon/common/authctx"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -27,7 +27,7 @@ func (l *QueryKnowledgeBaseLogic) QueryKnowledgeBase(req *types.KnowledgeQueryRe
 	if req == nil {
 		return nil, invalidRequestError("query request is required")
 	}
-	uid := ctxdata.GetUserId(l.ctx)
+	uid := authctx.GetUserId(l.ctx)
 	if uid == "" {
 		return nil, unauthenticatedError("missing user id")
 	}

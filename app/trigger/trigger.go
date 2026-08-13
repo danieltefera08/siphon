@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"siphon/app/trigger/cron"
 	"siphon/app/trigger/internal/task"
-	interceptor "siphon/common/Interceptor/rpcserver"
 	"siphon/common/asynqx"
+	"siphon/common/grpcx"
 	"siphon/common/tool"
 
 	"github.com/duke-git/lancet/v2/strutil"
@@ -69,7 +69,7 @@ func main() {
 		opts := nacosx.NewNacosConfig(c.NacosConfig.ServiceName, c.ListenOn, sc, cc, nacosx.WithMetadata(m))
 		_ = nacosx.RegisterService(opts)
 	}
-	s.AddUnaryInterceptors(interceptor.LoggerInterceptor)
+	s.AddUnaryInterceptors(grpcx.LoggerInterceptor)
 	serviceGroup := service.NewServiceGroup()
 	defer serviceGroup.Stop()
 	logx.AddGlobalFields(logx.Field("app", c.Name))

@@ -3,7 +3,7 @@ package logic
 import (
 	"context"
 	"encoding/json"
-	"github.com/dromara/carbon/v2"
+	"siphon/common/carbonx"
 	"siphon/model"
 
 	"siphon/app/xfusionmock/internal/svc"
@@ -50,7 +50,7 @@ func (l *PushTerminalBindLogic) PushTerminalBind(in *xfusionmock.ReqPushTerminal
 				TrackNo:       trackNo,
 				TrackType:     "STAFF",
 				TrackName:     l.svcCtx.Config.Name,
-				ActionTime:    carbon.Now().Format("Y-m-d H:i:s"),
+				ActionTime:    carbonx.NowDateTime(),
 			}
 			jsonData, err = json.Marshal(data)
 			if err != nil {

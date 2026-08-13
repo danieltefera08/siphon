@@ -3,7 +3,7 @@ package main
 import (
 	"flag"
 	"fmt"
-	interceptor "siphon/common/Interceptor/rpcserver"
+	"siphon/common/grpcx"
 
 	"siphon/app/ispserver/internal/config"
 	"siphon/app/ispserver/internal/server"
@@ -36,7 +36,7 @@ func main() {
 			reflection.Register(grpcServer)
 		}
 	})
-	s.AddUnaryInterceptors(interceptor.LoggerInterceptor)
+	s.AddUnaryInterceptors(grpcx.LoggerInterceptor)
 	logx.AddGlobalFields(logx.Field("app", c.Name))
 
 	serviceGroup := service.NewServiceGroup()

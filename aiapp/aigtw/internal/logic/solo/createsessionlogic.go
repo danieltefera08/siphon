@@ -8,7 +8,7 @@ import (
 	"siphon/aiapp/aigtw/internal/types"
 	"siphon/aiapp/aisolo/aisolo"
 	"siphon/aiapp/aisolo/modeweb"
-	"siphon/common/ctxdata"
+	"siphon/common/authctx"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -30,7 +30,7 @@ func NewCreateSessionLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Cre
 
 // CreateSession 透传到 aisolo gRPC, 用户 ID 从 JWT 解析出的 ctx 拿。
 func (l *CreateSessionLogic) CreateSession(req *types.SoloCreateSessionRequest) (*types.SoloCreateSessionResponse, error) {
-	userID := ctxdata.GetUserId(l.ctx)
+	userID := authctx.GetUserId(l.ctx)
 	if userID == "" {
 		return nil, unauthenticatedError("missing user id in context")
 	}

@@ -6,7 +6,7 @@ import (
 	"siphon/aiapp/aigtw/internal/svc"
 	"siphon/aiapp/aigtw/internal/types"
 	"siphon/aiapp/aisolo/aisolo"
-	"siphon/common/ctxdata"
+	"siphon/common/authctx"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -26,7 +26,7 @@ func NewListSessionsLogic(ctx context.Context, svcCtx *svc.ServiceContext) *List
 }
 
 func (l *ListSessionsLogic) ListSessions(req *types.SoloListSessionsRequest) (*types.SoloListSessionsResponse, error) {
-	userID := ctxdata.GetUserId(l.ctx)
+	userID := authctx.GetUserId(l.ctx)
 	if userID == "" {
 		return nil, unauthenticatedError("missing user id in context")
 	}

@@ -11,7 +11,7 @@ import (
 	"siphon/aiapp/aigtw/internal/svc"
 	"siphon/aiapp/aigtw/internal/types"
 	"siphon/aiapp/aisolo/aisolo"
-	"siphon/common/ctxdata"
+	"siphon/common/authctx"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -33,7 +33,7 @@ func NewResumeLogic(ctx context.Context, svcCtx *svc.ServiceContext) *ResumeLogi
 // Resume 把 aisolo ResumeStream 的每一帧直接写到 HTTP 响应, 语义同 Chat。
 // 请求体的 Action 决定恢复类型, 具体字段 (reason / selectedIds / text / formValues) 与 kind 对应。
 func (l *ResumeLogic) Resume(req *types.SoloInterruptRequest, w io.Writer) error {
-	userID := ctxdata.GetUserId(l.ctx)
+	userID := authctx.GetUserId(l.ctx)
 	if userID == "" {
 		return unauthenticatedError("missing user id in context")
 	}

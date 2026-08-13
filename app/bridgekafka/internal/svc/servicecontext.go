@@ -2,7 +2,7 @@ package svc
 
 import (
 	"siphon/app/bridgekafka/internal/config"
-	interceptor "siphon/common/Interceptor/rpcclient"
+	"siphon/common/grpcx"
 	"siphon/facade/streamevent/streamevent"
 
 	"github.com/zeromicro/go-queue/kq"
@@ -28,7 +28,7 @@ func NewServiceContext(c config.Config) *ServiceContext {
 	var streamEventCli streamevent.StreamEventClient
 	if len(c.StreamEventConf.Endpoints) > 0 || len(c.StreamEventConf.Target) > 0 {
 		streamEventCli = streamevent.NewStreamEventClient(zrpc.MustNewClient(c.StreamEventConf,
-			zrpc.WithUnaryClientInterceptor(interceptor.UnaryMetadataInterceptor),
+			zrpc.WithUnaryClientInterceptor(grpcx.UnaryMetadataInterceptor),
 			zrpc.WithDialOption(grpc.WithDefaultCallOptions(
 				grpc.MaxCallSendMsgSize(50*1024*1024),
 			)),

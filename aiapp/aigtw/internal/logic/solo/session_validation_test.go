@@ -10,11 +10,11 @@ import (
 	"siphon/aiapp/aigtw/internal/svc"
 	"siphon/aiapp/aigtw/internal/types"
 	"siphon/aiapp/aisolo/aisolo"
-	"siphon/common/ctxdata"
+	"siphon/common/authctx"
 )
 
 func TestSessionLogicsRequireSessionIDBeforeRPC(t *testing.T) {
-	ctx := context.WithValue(context.Background(), ctxdata.CtxUserIdKey, "user-1")
+	ctx := authctx.WithUserID(context.Background(), "user-1")
 	svcCtx := &svc.ServiceContext{}
 
 	cases := []struct {
@@ -47,7 +47,7 @@ func TestSessionLogicsRequireSessionIDBeforeRPC(t *testing.T) {
 }
 
 func TestSessionLogicsRequireRequestBeforeRPC(t *testing.T) {
-	ctx := context.WithValue(context.Background(), ctxdata.CtxUserIdKey, "user-1")
+	ctx := authctx.WithUserID(context.Background(), "user-1")
 	svcCtx := &svc.ServiceContext{}
 
 	cases := []struct {
@@ -81,7 +81,7 @@ func TestSessionLogicsRequireRequestBeforeRPC(t *testing.T) {
 }
 
 func TestGetInterruptRequiresInterruptIDBeforeRPC(t *testing.T) {
-	ctx := context.WithValue(context.Background(), ctxdata.CtxUserIdKey, "user-1")
+	ctx := authctx.WithUserID(context.Background(), "user-1")
 	logic := NewGetInterruptLogic(ctx, &svc.ServiceContext{})
 	_, err := logic.GetInterrupt(nil)
 	assertValidationError(t, err, "get interrupt request is required")
@@ -90,13 +90,13 @@ func TestGetInterruptRequiresInterruptIDBeforeRPC(t *testing.T) {
 }
 
 func TestCreateSessionRequiresRequestBeforeRPC(t *testing.T) {
-	ctx := context.WithValue(context.Background(), ctxdata.CtxUserIdKey, "user-1")
+	ctx := authctx.WithUserID(context.Background(), "user-1")
 	_, err := NewCreateSessionLogic(ctx, &svc.ServiceContext{}).CreateSession(nil)
 	assertValidationError(t, err, "create session request is required")
 }
 
 func TestBindSessionKnowledgeRequiresKnowledgeBaseIDBeforeRPC(t *testing.T) {
-	ctx := context.WithValue(context.Background(), ctxdata.CtxUserIdKey, "user-1")
+	ctx := authctx.WithUserID(context.Background(), "user-1")
 	_, err := NewBindSessionKnowledgeLogic(ctx, &svc.ServiceContext{}).BindSessionKnowledge(&types.SoloBindKnowledgeRequest{SessionId: "sess-1"})
 	assertValidationError(t, err, "knowledgeBaseId is required")
 }
@@ -121,7 +121,7 @@ func TestListMessagesTrimsSessionAndPassesLimit(t *testing.T) {
 			},
 		},
 	}
-	ctx := context.WithValue(context.Background(), ctxdata.CtxUserIdKey, "user-1")
+	ctx := authctx.WithUserID(context.Background(), "user-1")
 
 	resp, err := NewListMessagesLogic(ctx, &svc.ServiceContext{AiSoloCli: fake}).ListMessages(&types.SoloListMessagesRequest{
 		SessionId: " sess-1 ",
@@ -146,7 +146,7 @@ func TestListMessagesTrimsSessionAndPassesLimit(t *testing.T) {
 
 func TestListMessagesPassesNegativeLimitToRPC(t *testing.T) {
 	fake := &listMessagesFakeAiSoloClient{resp: &aisolo.ListMessagesResp{}}
-	ctx := context.WithValue(context.Background(), ctxdata.CtxUserIdKey, "user-1")
+	ctx := authctx.WithUserID(context.Background(), "user-1")
 
 	_, err := NewListMessagesLogic(ctx, &svc.ServiceContext{AiSoloCli: fake}).ListMessages(&types.SoloListMessagesRequest{
 		SessionId: "sess-1",
@@ -162,7 +162,7 @@ func TestListMessagesPassesNegativeLimitToRPC(t *testing.T) {
 
 func TestListSessionsAllowsNilRequest(t *testing.T) {
 	fake := &listSessionsFakeAiSoloClient{resp: &aisolo.ListSessionsResp{Page: 1}}
-	ctx := context.WithValue(context.Background(), ctxdata.CtxUserIdKey, "user-1")
+	ctx := authctx.WithUserID(context.Background(), "user-1")
 
 	_, err := NewListSessionsLogic(ctx, &svc.ServiceContext{AiSoloCli: fake}).ListSessions(nil)
 	if err != nil {

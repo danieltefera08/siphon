@@ -7,6 +7,7 @@ import (
 	"siphon/app/trigger/internal/cronjob"
 	"siphon/app/trigger/internal/svc"
 	"siphon/app/trigger/trigger"
+	"siphon/common/carbonx"
 	"siphon/common/crontask"
 	"siphon/common/tool"
 	"siphon/third_party/extproto"
@@ -62,7 +63,7 @@ func (l *UpdateCronJobLogic) UpdateCronJob(in *trigger.UpdateCronJobReq) (*trigg
 	}
 	nextRun := ""
 	if !task.NextRun.IsZero() {
-		nextRun = tool.CarbonFromTimeStartOfSecond(task.NextRun).ToDateTimeString()
+		nextRun = carbonx.FormatDateTime(task.NextRun)
 	}
 	return &trigger.UpdateCronJobRes{JobId: task.ID, NextRun: nextRun, TaskCode: task.TaskCode, GroupId: groupID}, nil
 }

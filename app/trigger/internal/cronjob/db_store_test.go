@@ -12,6 +12,7 @@ import (
 	"siphon/app/trigger/trigger"
 	"siphon/common/crontask"
 	"siphon/common/gormx"
+	"siphon/common/rrulex"
 
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
@@ -174,10 +175,11 @@ func TestDBStoreCompletionProgressesFromPersistedExactTimeSet(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	nextRun, err := crontask.NextAfter(claim.Task.RRuleStr, ruleCursor)
+	set, err := rrulex.ParseSet(claim.Task.RRuleStr)
 	if err != nil {
 		t.Fatal(err)
 	}
+	nextRun := set.After(ruleCursor, false)
 	if !nextRun.Equal(wantNext) {
 		t.Fatalf("completion progression = %v, want %v after exact EXDATE", nextRun, wantNext)
 	}

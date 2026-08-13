@@ -9,8 +9,8 @@ import (
 	"siphon/app/ieccaller/internal/server"
 	"siphon/app/ieccaller/internal/svc"
 	iecmqtt "siphon/app/ieccaller/mqtt"
-	interceptor "siphon/common/Interceptor/rpcserver"
 	_ "siphon/common/carbonx"
+	"siphon/common/grpcx"
 	"siphon/common/iec104/client"
 	"siphon/common/nacosx"
 	"siphon/common/tool"
@@ -77,7 +77,7 @@ func main() {
 		opts := nacosx.NewNacosConfig(c.NacosConfig.ServiceName, c.ListenOn, sc, cc, nacosx.WithMetadata(m))
 		_ = nacosx.RegisterService(opts)
 	}
-	s.AddUnaryInterceptors(interceptor.LoggerInterceptor)
+	s.AddUnaryInterceptors(grpcx.LoggerInterceptor)
 	serviceGroup := service.NewServiceGroup()
 	defer serviceGroup.Stop()
 	logx.AddGlobalFields(logx.Field("app", c.Name))

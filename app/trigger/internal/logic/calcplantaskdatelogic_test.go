@@ -8,7 +8,7 @@ import (
 
 	"siphon/app/trigger/internal/cronjob"
 	"siphon/app/trigger/trigger"
-	"siphon/common/crontask"
+	"siphon/common/rrulex"
 )
 
 func TestCalcPlanTaskDateReturnsScheduleDescription(t *testing.T) {
@@ -59,7 +59,7 @@ func TestCalcPlanTaskDateUsesPersistedScheduleCompiler(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	wantDescription, err := crontask.DescribeRRule(schedule.RRuleStr)
+	wantDescription, err := rrulex.Describe(schedule.RRuleStr)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -129,7 +129,7 @@ func TestCalcPlanTaskDateAppliesExactTimeSetSemantics(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	wantDescription, err := crontask.DescribeRRule(schedule.RRuleStr)
+	wantDescription, err := rrulex.Describe(schedule.RRuleStr)
 	if err != nil {
 		t.Fatal(err)
 	}

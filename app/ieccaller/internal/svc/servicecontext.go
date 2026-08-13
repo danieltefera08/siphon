@@ -7,10 +7,11 @@ import (
 	"math"
 	"time"
 	"siphon/app/ieccaller/internal/config"
-	interceptor "siphon/common/Interceptor/rpcclient"
 	"siphon/common/antsx"
+	"siphon/common/carbonx"
 	"siphon/common/executorx"
 	"siphon/common/gormx"
+	"siphon/common/grpcx"
 	"siphon/common/iec104"
 	"siphon/common/iec104/client"
 	"siphon/common/iec104/types"
@@ -20,7 +21,6 @@ import (
 	"siphon/facade/streamevent/streamevent"
 	"siphon/model/gormmodel"
 
-	"github.com/dromara/carbon/v2"
 	"github.com/tidwall/gjson"
 	"github.com/zeromicro/go-queue/kq"
 	"github.com/zeromicro/go-zero/core/jsonx"
@@ -85,7 +85,7 @@ func NewServiceContext(c config.Config) *ServiceContext {
 	}
 	if len(c.StreamEventConf.Endpoints) > 0 || len(c.StreamEventConf.Target) > 0 {
 		streamEventCli := streamevent.NewStreamEventClient(zrpc.MustNewClient(c.StreamEventConf,
-			zrpc.WithUnaryClientInterceptor(interceptor.UnaryMetadataInterceptor),
+			zrpc.WithUnaryClientInterceptor(grpcx.UnaryMetadataInterceptor),
 			// 添加最大消息配置
 			zrpc.WithDialOption(grpc.WithDefaultCallOptions(
 				grpc.MaxCallSendMsgSize(math.MaxInt32), // 发送最大2GB
@@ -166,7 +166,7 @@ func NewServiceContext(c config.Config) *ServiceContext {
 
 func (svc ServiceContext) PushASDU(ctx context.Context, data *types.MsgBody, ioa uint) error {
 	key, _ := data.GetKey()
-	data.Time = carbon.Now().ToDateTimeMicroString()
+	data.Time = carbonx.NowDateTimeMicro()
 
 	// 获取 stationId，从上下文或生成
 	stationId, ok := ctx.Value("stationId").(string)

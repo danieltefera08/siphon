@@ -3,7 +3,7 @@ package svc
 import (
 	"context"
 	"math"
-	interceptor "siphon/common/Interceptor/rpcclient"
+	"siphon/common/grpcx"
 	"siphon/common/socketiox"
 	"siphon/common/tool"
 	"siphon/facade/streamevent/streamevent"
@@ -23,7 +23,7 @@ type ServiceContext struct {
 
 func NewServiceContext(c config.Config) *ServiceContext {
 	streamEventCli := streamevent.NewStreamEventClient(zrpc.MustNewClient(c.StreamEventConf,
-		zrpc.WithUnaryClientInterceptor(interceptor.UnaryMetadataInterceptor),
+		zrpc.WithUnaryClientInterceptor(grpcx.UnaryMetadataInterceptor),
 		// 添加最大消息配置
 		zrpc.WithDialOption(grpc.WithDefaultCallOptions(
 			grpc.MaxCallSendMsgSize(math.MaxInt32), // 发送最大2GB

@@ -6,6 +6,7 @@ import (
 	"time"
 	"siphon/app/alarm/alarm"
 	"siphon/common/asynqx"
+	"siphon/common/carbonx"
 	"siphon/common/tool"
 	"siphon/third_party/extproto"
 	"siphon/zerorpc/internal/svc"
@@ -75,7 +76,7 @@ func (l *ForwardTaskLogic) ForwardTask(in *zerorpc.ForwardTaskReq) (*zerorpc.For
 			Description: "服务告警",
 			Title:       "服务告警 - Siphon",
 			Project:     "zero.rpc",
-			DateTime:    carbon.Now().Format("Y-m-d H:i:s"),
+			DateTime:    carbonx.NowDateTime(),
 			AlarmId:     in.MsgId,
 			Content:     fmt.Sprintf("%s, 转发任务下发失败, msg:%s, url:%s", traceID, msg.Msg, msg.Url),
 			Error:       fmt.Sprintf("err:%+v", err),

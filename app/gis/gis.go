@@ -3,8 +3,8 @@ package main
 import (
 	"flag"
 	"fmt"
-	interceptor "siphon/common/Interceptor/rpcserver"
 	"siphon/common/gisx/geos"
+	"siphon/common/grpcx"
 	"siphon/common/nacosx"
 	"siphon/common/tool"
 
@@ -65,7 +65,7 @@ func main() {
 		opts := nacosx.NewNacosConfig(c.NacosConfig.ServiceName, c.ListenOn, sc, cc, nacosx.WithMetadata(m))
 		_ = nacosx.RegisterService(opts)
 	}
-	s.AddUnaryInterceptors(interceptor.LoggerInterceptor)
+	s.AddUnaryInterceptors(grpcx.LoggerInterceptor)
 	logx.AddGlobalFields(logx.Field("app", c.Name))
 	defer s.Stop()
 

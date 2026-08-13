@@ -8,7 +8,7 @@ import (
 	"siphon/aiapp/aichat/internal/config"
 	"siphon/aiapp/aichat/internal/server"
 	"siphon/aiapp/aichat/internal/svc"
-	interceptor "siphon/common/Interceptor/rpcserver"
+	"siphon/common/grpcx"
 	"siphon/common/tool"
 
 	"github.com/zeromicro/go-zero/core/conf"
@@ -38,8 +38,8 @@ func main() {
 			reflection.Register(grpcServer)
 		}
 	})
-	s.AddUnaryInterceptors(interceptor.LoggerInterceptor)
-	s.AddStreamInterceptors(interceptor.StreamLoggerInterceptor)
+	s.AddUnaryInterceptors(grpcx.LoggerInterceptor)
+	s.AddStreamInterceptors(grpcx.StreamLoggerInterceptor)
 	defer s.Stop()
 
 	logx.AddGlobalFields(logx.Field("app", c.Name))

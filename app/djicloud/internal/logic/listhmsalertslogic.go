@@ -6,11 +6,11 @@ import (
 	"siphon/app/djicloud/djicloud"
 	"siphon/app/djicloud/internal/svc"
 	"siphon/app/djicloud/model/gormmodel"
+	"siphon/common/carbonx"
 	"siphon/common/gormx"
 	"siphon/common/tool"
 	"siphon/third_party/extproto"
 
-	"github.com/dromara/carbon/v2"
 	"github.com/zeromicro/go-zero/core/logx"
 )
 
@@ -80,6 +80,6 @@ func toHmsAlertInfo(item gormmodel.DjiHmsAlert) *djicloud.HmsAlertInfo {
 		Acked:          int32(item.Acked),
 		AckedAt:        nullTimeMillis(item.AckedAt),
 		AckedBy:        item.AckedBy,
-		ReportedAt:     carbon.CreateFromStdTime(item.ReportedAt).ToDateTimeMicroString(),
+		ReportedAt:     carbonx.FormatDateTimeMicro(item.ReportedAt),
 	}
 }

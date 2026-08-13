@@ -5,14 +5,13 @@ import (
 
 	"siphon/app/ispagent/ispagent"
 	"siphon/app/ispagent/model/gormmodel"
-	"siphon/common/crontask"
-
-	"github.com/dromara/carbon/v2"
+	"siphon/common/carbonx"
+	"siphon/common/rrulex"
 )
 
 // toTaskConfigItemPb 将任务配置持久化模型转换为 RPC 视图。
 func toTaskConfigItemPb(record *gormmodel.GormTaskConfig) (*ispagent.TaskConfigItem, error) {
-	description, err := crontask.DescribeRRule(record.RRuleStr)
+	description, err := rrulex.Describe(record.RRuleStr)
 	if err != nil {
 		return nil, fmt.Errorf("生成任务 %s 规则描述失败: %w", record.TaskCode, err)
 	}
@@ -47,10 +46,10 @@ func toTaskConfigItemPb(record *gormmodel.GormTaskConfig) (*ispagent.TaskConfigI
 		ScheduleDescription: description,
 	}
 	if record.NextRun.Valid {
-		item.NextRun = carbon.CreateFromStdTime(record.NextRun.Time).ToDateTimeString()
+		item.NextRun = carbonx.FormatDateTime(record.NextRun.Time)
 	}
 	if record.LastRun.Valid {
-		item.LastRun = carbon.CreateFromStdTime(record.LastRun.Time).ToDateTimeString()
+		item.LastRun = carbonx.FormatDateTime(record.LastRun.Time)
 	}
 	return item, nil
 }

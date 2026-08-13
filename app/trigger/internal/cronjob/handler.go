@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"siphon/app/trigger/model/gormmodel"
+	"siphon/common/carbonx"
 	"siphon/common/crontask"
 	"siphon/common/gormx"
 	"siphon/facade/streamevent/streamevent"
@@ -34,7 +35,7 @@ func handleEvent(ctx context.Context, task *crontask.TaskConfig, client EventCli
 		TaskName:      task.TaskName,
 		Priority:      int32(task.Priority),
 		Payload:       string(task.Payload),
-		ScheduledTime: formatTime(task.ScheduledTime),
+		ScheduledTime: carbonx.FormatDateTimeOrEmpty(task.ScheduledTime),
 		Type:          extra.Type,
 		GroupId:       extra.GroupId,
 		Description:   extra.Description,
@@ -105,11 +106,4 @@ func NewLoggingEventHandler(db *gormx.DB, client EventClient) crontask.Handler {
 
 		return err
 	}
-}
-
-func formatTime(value time.Time) string {
-	if value.IsZero() {
-		return ""
-	}
-	return value.Format(dateTimeLayout)
 }

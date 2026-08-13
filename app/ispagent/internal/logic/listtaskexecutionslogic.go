@@ -6,6 +6,7 @@ import (
 
 	"siphon/app/ispagent/internal/svc"
 	"siphon/app/ispagent/ispagent"
+	"siphon/common/carbonx"
 	"siphon/common/crontask"
 
 	"github.com/dromara/carbon/v2"
@@ -68,7 +69,7 @@ func (l *ListTaskExecutionsLogic) computeExecTimes(task *crontask.TaskConfig, co
 		if next.IsZero() {
 			break
 		}
-		times = append(times, carbon.CreateFromStdTime(next).ToDateTimeString())
+		times = append(times, carbonx.FormatDateTime(next))
 		from = next
 	}
 	return times

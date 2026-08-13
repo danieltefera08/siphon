@@ -8,7 +8,7 @@ import (
 	"siphon/app/iecagent/internal/iec"
 	"siphon/app/iecagent/internal/server"
 	"siphon/app/iecagent/internal/svc"
-	interceptor "siphon/common/Interceptor/rpcserver"
+	"siphon/common/grpcx"
 	server2 "siphon/common/iec104/server"
 	"siphon/common/tool"
 
@@ -45,7 +45,7 @@ func main() {
 			reflection.Register(grpcServer)
 		}
 	})
-	s.AddUnaryInterceptors(interceptor.LoggerInterceptor)
+	s.AddUnaryInterceptors(grpcx.LoggerInterceptor)
 	serviceGroup := service.NewServiceGroup()
 	defer serviceGroup.Stop()
 	logx.AddGlobalFields(logx.Field("app", c.Name))

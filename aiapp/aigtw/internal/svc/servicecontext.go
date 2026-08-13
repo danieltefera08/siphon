@@ -7,8 +7,8 @@ import (
 	"siphon/aiapp/aichat/aichat"
 	"siphon/aiapp/aigtw/internal/config"
 	"siphon/aiapp/aisolo/aisolo"
-	interceptor "siphon/common/Interceptor/rpcclient"
 	einoxkb "siphon/common/einox/knowledge"
+	"siphon/common/grpcx"
 
 	"github.com/zeromicro/go-zero/core/logx"
 	"github.com/zeromicro/go-zero/zrpc"
@@ -67,11 +67,11 @@ func NewServiceContext(c config.Config) *ServiceContext {
 	s := &ServiceContext{
 		Config: c,
 		AiChatCli: aichat.NewAiChatClient(zrpc.MustNewClient(c.AiChatRpcConf,
-			zrpc.WithUnaryClientInterceptor(interceptor.UnaryMetadataInterceptor),
-			zrpc.WithStreamClientInterceptor(interceptor.StreamTracingInterceptor)).Conn()),
+			zrpc.WithUnaryClientInterceptor(grpcx.UnaryMetadataInterceptor),
+			zrpc.WithStreamClientInterceptor(grpcx.StreamTracingInterceptor)).Conn()),
 		AiSoloCli: aisolo.NewAiSoloClient(zrpc.MustNewClient(c.AiSoloRpcConf,
-			zrpc.WithUnaryClientInterceptor(interceptor.UnaryMetadataInterceptor),
-			zrpc.WithStreamClientInterceptor(interceptor.StreamTracingInterceptor)).Conn()),
+			zrpc.WithUnaryClientInterceptor(grpcx.UnaryMetadataInterceptor),
+			zrpc.WithStreamClientInterceptor(grpcx.StreamTracingInterceptor)).Conn()),
 	}
 	if kb, err := einoxkb.NewService(c.Knowledge, ""); errors.Is(err, einoxkb.ErrKnowledgeDisabled) {
 		logx.Info("[svc] knowledge disabled by config")

@@ -4,7 +4,7 @@ import (
 	"flag"
 	"fmt"
 	"os"
-	interceptor "siphon/common/Interceptor/rpcserver"
+	"siphon/common/grpcx"
 
 	"siphon/aiapp/aisolo/aisolo"
 	"siphon/aiapp/aisolo/internal/config"
@@ -45,8 +45,8 @@ func main() {
 			reflection.Register(grpcServer)
 		}
 	})
-	s.AddUnaryInterceptors(interceptor.LoggerInterceptor)
-	s.AddStreamInterceptors(interceptor.StreamLoggerInterceptor)
+	s.AddUnaryInterceptors(grpcx.LoggerInterceptor)
+	s.AddStreamInterceptors(grpcx.StreamLoggerInterceptor)
 	defer func() { _ = ctx.Close() }()
 	defer s.Stop()
 

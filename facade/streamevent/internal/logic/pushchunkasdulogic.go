@@ -6,8 +6,8 @@ import (
 	"fmt"
 	"strconv"
 	"strings"
+	"siphon/common/carbonx"
 	"siphon/common/iec104/util"
-	"siphon/common/tool"
 	"siphon/facade/streamevent/internal/svc"
 	"siphon/facade/streamevent/streamevent"
 
@@ -116,7 +116,7 @@ func extractIoaValue(bodyMap map[string]interface{}) string {
 
 func (l *PushChunkAsduLogic) PushChunkAsdu(in *streamevent.PushChunkAsduReq) (*streamevent.PushChunkAsduRes, error) {
 	startTime := timex.Now()
-	reqId := tool.GenMicroTS()
+	reqId := carbonx.NowUnixMicro()
 	ctx := logx.WithFields(context.WithValue(l.ctx, "taos_req_id", reqId), logx.Field("taosReqId", reqId))
 	if l.svcCtx.TaosConn == nil {
 		l.WithContext(ctx).Errorf("TDengine connection is not initialized")
