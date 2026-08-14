@@ -1,8 +1,9 @@
 package kafka
 
 import (
+	"context"
+
 	"github.com/zeromicro/go-zero/core/logx"
-	"golang.org/x/net/context"
 	"siphon/app/xfusionmock/internal/svc"
 )
 
