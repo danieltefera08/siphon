@@ -8,7 +8,6 @@ import (
 	"siphon/app/ieccaller/internal/iec"
 	"siphon/app/ieccaller/internal/server"
 	"siphon/app/ieccaller/internal/svc"
-	iecmqtt "siphon/app/ieccaller/mqtt"
 	_ "siphon/common/carbonx"
 	"siphon/common/grpcx"
 	"siphon/common/iec104/client"
@@ -91,15 +90,6 @@ func main() {
 
 	// cron
 	serviceGroup.Add(cron.NewCronService(ctx))
-
-	if ctx.MqttClient != nil && ctx.IsBroadcast() {
-		if err := ctx.MqttClient.AddHandlerFunc(
-			ctx.BroadcastTopic(),
-			iecmqtt.NewBroadcast(ctx).Consume,
-		); err != nil {
-			logx.Must(err)
-		}
-	}
 
 	logx.Infof("Deploy mode: %s\n", c.DeployMode)
 	logx.Infof("Starting rpc server at %s...\n", c.ListenOn)
