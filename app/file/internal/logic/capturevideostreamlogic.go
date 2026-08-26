@@ -7,7 +7,7 @@ import (
 
 	"siphon/app/file/file"
 	"siphon/app/file/internal/svc"
-	"siphon/common/mediax"
+	"siphon/common/ffmpegx"
 	"siphon/common/tool"
 	"siphon/third_party/extproto"
 
@@ -34,7 +34,7 @@ func (l *CaptureVideoStreamLogic) CaptureVideoStream(in *file.CaptureVideoStream
 	if err != nil {
 		return nil, tool.NewErrorByPbCodeWrap(extproto.Code__1_06_THIRD_PARTY, err, "获取OSS模板失败")
 	}
-	shot, err := media.NewScreenshotter(in.StreamUrl)
+	shot, err := ffmpegx.NewScreenshotter(in.StreamUrl)
 	if err != nil {
 		return nil, tool.NewErrorByPbCodeWrap(extproto.Code__1_06_THIRD_PARTY, err, "创建截图器失败")
 	}

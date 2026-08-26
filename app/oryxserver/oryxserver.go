@@ -4,6 +4,7 @@ import (
 	"flag"
 	"fmt"
 
+	"siphon/common/asynqx"
 	"siphon/common/grpcx"
 	"siphon/common/nacosx"
 	"siphon/common/tool"
@@ -11,6 +12,7 @@ import (
 	"siphon/app/oryxserver/internal/config"
 	"siphon/app/oryxserver/internal/server"
 	"siphon/app/oryxserver/internal/svc"
+	"siphon/app/oryxserver/internal/task"
 	"siphon/app/oryxserver/oryxserver"
 	_ "siphon/common/carbonx"
 
@@ -46,11 +48,6 @@ func main() {
 			reflection.Register(grpcServer)
 		}
 	})
-	// 将 RelayManager 清理接入 go-zero 优雅关闭：收到停止信号时停止全部 FFmpeg 进程。
-	// waitRelayStop 阻塞直到监听器执行完，避免 main 先行退出导致 ffmpeg 残留为孤儿进程。
-	waitRelayStop := proc.AddShutdownListener(ctx.RelayManager.StopAll)
-	defer waitRelayStop()
-	defer s.Stop()
 
 	// register service to nacos
 	if c.NacosConfig.IsRegister {
@@ -70,7 +67,8 @@ func main() {
 			"deployMode":                c.DeployMode,
 			"broadcastTopic":            ctx.BroadcastTopic(),
 			"broadcastAckTopic":         ctx.BroadcastAckTopic(),
-			"broadcastInstanceId":       ctx.BroadcastInstanceId(),
+			"broadcastInstanceId":       ctx.NodeID,
+			"relayNodeId":               ctx.NodeID,
 		}
 		opts := nacosx.NewNacosConfig(c.NacosConfig.ServiceName, c.ListenOn, sc, cc, nacosx.WithMetadata(m))
 		_ = nacosx.RegisterService(opts)
@@ -78,6 +76,25 @@ func main() {
 	s.AddUnaryInterceptors(grpcx.LoggerInterceptor)
 	logx.AddGlobalFields(logx.Field("app", c.Name))
 
+	// 对齐 trigger 模式：用 serviceGroup 统一管理所有子服务的启动/关闭
+	serviceGroup := service.NewServiceGroup()
+	defer serviceGroup.Stop()
+
+	// 1. gRPC server
+	serviceGroup.Add(s)
+
+	// 2. 分布式 relay Asynq worker（独立 DB + 独立队列，与 trigger 完全隔离）
+	relayMux := task.Register(ctx)
+	relayTaskServer := asynqx.NewTaskServer(ctx.AsynqServer, relayMux)
+	serviceGroup.Add(relayTaskServer)
+
+	// 3. WrapUp：停止全部 FFmpeg 进程，让其拥有完整 GracePeriod 预算
+	waitRelayStop := proc.AddWrapUpListener(func() {
+		ctx.RelayRegistry.StopAll()
+		ctx.FFmpegManager.StopAll()
+	})
+	defer waitRelayStop()
+
 	fmt.Printf("Starting rpc server at %s...\n", c.ListenOn)
-	s.Start()
+	serviceGroup.Start()
 }
