@@ -7,6 +7,7 @@ import (
 	"siphon/app/oryxserver/internal/logic"
 	"siphon/app/oryxserver/internal/relay"
 	"siphon/app/oryxserver/internal/svc"
+	"siphon/app/oryxserver/oryxserver"
 
 	"github.com/hibiken/asynq"
 	"github.com/zeromicro/go-zero/core/logx"
@@ -53,7 +54,7 @@ func (h *StopHandler) ProcessTask(ctx context.Context, t *asynq.Task) error {
 
 	logx.WithContext(ctx).Info("[asynq-task] 补停开始")
 	l := logic.NewStopRelayPullLogic(ctx, h.svcCtx)
-	err = l.StopRelayPullFromAsynq(payload.App, payload.Stream)
+	err = l.StopRelayPullFromAsynq(&oryxserver.StopRelayPullReq{App: payload.App, Stream: payload.Stream, StopRecording: payload.StopRecording})
 	if err != nil {
 		logx.WithContext(ctx).Errorf("[asynq-task] 补停失败: %v", err)
 		return err
