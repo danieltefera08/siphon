@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"time"
 	"siphon/app/trigger/model/gormmodel"
+	"siphon/common/authctx"
 	"siphon/common/tool"
 	"siphon/model"
 	"siphon/third_party/extproto"
@@ -88,7 +89,7 @@ func (l *PausePlanExecItemLogic) PausePlanExecItem(in *trigger.PausePlanExecItem
 		execItem.Status = model.StatusPaused
 		execItem.PausedTime = sql.NullTime{Time: time.Now(), Valid: true}
 		execItem.PausedReason = sql.NullString{String: in.Reason, Valid: in.Reason != ""}
-		execItem.UpdateUser = sql.NullString{String: tool.GetCurrentUserId(l.ctx, nil), Valid: tool.GetCurrentUserId(l.ctx, nil) != ""}
+		execItem.UpdateUser = sql.NullString{String: authctx.GetUserId(l.ctx), Valid: authctx.GetUserId(l.ctx) != ""}
 
 		// 更新执行项
 		return tx.Save(&execItem).Error

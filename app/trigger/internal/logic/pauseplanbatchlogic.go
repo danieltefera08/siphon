@@ -9,6 +9,7 @@ import (
 	"siphon/app/trigger/internal/svc"
 	"siphon/app/trigger/model/gormmodel"
 	"siphon/app/trigger/trigger"
+	"siphon/common/authctx"
 	"siphon/common/tool"
 	"siphon/model"
 	"siphon/third_party/extproto"
@@ -81,7 +82,7 @@ func (l *PausePlanBatchLogic) PausePlanBatch(in *trigger.PausePlanBatchReq) (*tr
 		planBatch.Status = model.PlanStatusPaused // 暂停
 		planBatch.PausedTime = sql.NullTime{Time: time.Now(), Valid: true}
 		planBatch.PausedReason = sql.NullString{String: in.Reason, Valid: in.Reason != ""}
-		planBatch.UpdateUser = sql.NullString{String: tool.GetCurrentUserId(l.ctx, nil), Valid: tool.GetCurrentUserId(l.ctx, nil) != ""}
+		planBatch.UpdateUser = sql.NullString{String: authctx.GetUserId(l.ctx), Valid: authctx.GetUserId(l.ctx) != ""}
 
 		// 更新计划批次
 		return tx.Save(&planBatch).Error

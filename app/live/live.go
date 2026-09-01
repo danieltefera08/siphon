@@ -1,0 +1,74 @@
+package main
+
+import (
+	"flag"
+	"fmt"
+
+	"siphon/app/live/internal/config"
+	"siphon/app/live/internal/server"
+	"siphon/app/live/internal/svc"
+	"siphon/app/live/live"
+	_ "siphon/common/carbonx"
+	"siphon/common/grpcx"
+	"siphon/common/nacosx"
+	"siphon/common/tool"
+
+	"github.com/duke-git/lancet/v2/strutil"
+	"github.com/nacos-group/nacos-sdk-go/v2/common/constant"
+	"github.com/zeromicro/go-zero/core/conf"
+	"github.com/zeromicro/go-zero/core/logx"
+	"github.com/zeromicro/go-zero/core/proc"
+	"github.com/zeromicro/go-zero/core/service"
+	"github.com/zeromicro/go-zero/zrpc"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/reflection"
+)
+
+var configFile = flag.String("f", "etc/live.yaml", "the config file")
+
+func main() {
+	flag.Parse()
+
+	var c config.Config
+	conf.MustLoad(*configFile, &c)
+	proc.SetTimeToForceQuit(c.GracePeriod)
+
+	tool.PrintGoVersion()
+
+	ctx := svc.NewServiceContext(c)
+
+	s := zrpc.MustNewServer(c.RpcServerConf, func(grpcServer *grpc.Server) {
+		live.RegisterLiveRpcServer(grpcServer, server.NewLiveRpcServer(ctx))
+
+		if c.Mode == service.DevMode || c.Mode == service.TestMode {
+			reflection.Register(grpcServer)
+		}
+	})
+
+	// 可选：注册服务到 nacos
+	if c.NacosConfig.IsRegister {
+		sc := []constant.ServerConfig{
+			*constant.NewServerConfig(c.NacosConfig.Host, c.NacosConfig.Port),
+		}
+		cc := &constant.ClientConfig{
+			NamespaceId:         c.NacosConfig.NamespaceId,
+			Username:            c.NacosConfig.Username,
+			Password:            c.NacosConfig.PassWord,
+			TimeoutMs:           5000,
+			NotLoadCacheAtStart: true,
+		}
+		m := map[string]string{
+			"gRPC_port":                 strutil.After(c.RpcServerConf.ListenOn, ":"),
+			"preserved.register.source": "go-zero",
+			"deployMode":                c.DeployMode,
+		}
+		opts := nacosx.NewNacosConfig(c.NacosConfig.ServiceName, c.ListenOn, sc, cc, nacosx.WithMetadata(m))
+		_ = nacosx.RegisterService(opts)
+	}
+	s.AddUnaryInterceptors(grpcx.LoggerInterceptor)
+	logx.AddGlobalFields(logx.Field("app", c.Name))
+
+	defer s.Stop()
+	fmt.Printf("Starting rpc server at %s...\n", c.ListenOn)
+	s.Start()
+}

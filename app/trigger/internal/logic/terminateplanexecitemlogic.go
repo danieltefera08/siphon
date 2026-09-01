@@ -7,6 +7,7 @@ import (
 	"siphon/app/trigger/internal/svc"
 	"siphon/app/trigger/model/gormmodel"
 	"siphon/app/trigger/trigger"
+	"siphon/common/authctx"
 	"siphon/common/tool"
 	"siphon/facade/streamevent/streamevent"
 	"siphon/model"
@@ -88,7 +89,7 @@ func (l *TerminatePlanExecItemLogic) TerminatePlanExecItem(in *trigger.Terminate
 		execItem.TerminatedReason = sql.NullString{String: in.Reason, Valid: in.Reason != ""}
 		execItem.PausedTime = sql.NullTime{}
 		execItem.PausedReason = sql.NullString{}
-		execItem.UpdateUser = sql.NullString{String: tool.GetCurrentUserId(l.ctx, nil), Valid: tool.GetCurrentUserId(l.ctx, nil) != ""}
+		execItem.UpdateUser = sql.NullString{String: authctx.GetUserId(l.ctx), Valid: authctx.GetUserId(l.ctx) != ""}
 
 		// 更新执行项
 		return tx.Save(&execItem).Error
