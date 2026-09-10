@@ -8,6 +8,7 @@ import (
 
 	live "siphon/app/livegtw/internal/handler/live"
 	ticket "siphon/app/livegtw/internal/handler/ticket"
+	token "siphon/app/livegtw/internal/handler/token"
 	"siphon/app/livegtw/internal/svc"
 
 	"github.com/zeromicro/go-zero/rest"
@@ -177,6 +178,18 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 				Method:  http.MethodGet,
 				Path:    "/joinMeetingByTicket",
 				Handler: ticket.JoinMeetingByTicketHandler(serverCtx),
+			},
+		},
+		rest.WithPrefix("/live/v1"),
+	)
+
+	server.AddRoutes(
+		[]rest.Route{
+			{
+				// 签发 Token（无需用户鉴权，使用签发密钥验证）
+				Method:  http.MethodPost,
+				Path:    "/generateToken",
+				Handler: token.GenerateTokenHandler(serverCtx),
 			},
 		},
 		rest.WithPrefix("/live/v1"),
