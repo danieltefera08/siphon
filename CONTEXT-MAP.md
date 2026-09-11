@@ -1,6 +1,6 @@
 # 领域上下文地图
 
-siphon 包含多个相对独立的业务上下文。本地图只帮助定位领域语言；实现约束与任务入口见 [Agent 知识库](./docs/agent/README.md)。
+siphon 包含多个相对独立的业务上下文。本地图只帮助定位领域语言；实现约束与任务入口见 OpenViking 记忆系统（`viking://resources/project/siphon`，详见 `AGENTS.md`）。
 
 ## 上下文
 
